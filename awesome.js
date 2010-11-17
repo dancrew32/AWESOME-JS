@@ -445,6 +445,30 @@ var AWESOME = (function () {
         //         fx.start();
         //     }
         // },
+        truncate: function(obj, len) {
+            var len = len || 80;
+            if (obj)
+            var olen = obj.length;
+            if (olen > 1) {
+                for (var i=0; i < olen; i++) {
+                    var trunc = obj[i].innerHTML;
+                    if (trunc.length > len) {
+                        trunc = trunc.substring(0, len);
+                        trunc = trunc.replace(/\w+$/, '');
+                        trunc += '<a href="#" onclick="this.parentNode.innerHTML=unescape(\''+ escape(obj[i].innerHTML)+'\'); return false;">Read More &raquo;<\/a>';
+                        obj[i].innerHTML = trunc;
+                    }   
+                }
+            } else {
+                var trunc = obj.innerHTML;
+                if (trunc.length > len) {
+                    trunc = trunc.substring(0, len);
+                    trunc = trunc.replace(/\w+$/, '');
+                    trunc += '<a href="#" onclick="this.parentNode.innerHTML=unescape(\''+ escape(obj[i].innerHTML)+'\'); return false;">Read More &raquo;<\/a>';
+                    obj.innerHTML = trunc;
+                }
+            }
+        },
         getUrlVars: function () {
             var vars = [],
                 hash;
