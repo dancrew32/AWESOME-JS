@@ -11,6 +11,7 @@
             $b       = $.getId('b'),
             $c       = $.getId('c'),
             $d       = $.getId('d'),
+            $trunc   = $.getId('trunc'),
             $e       = $.getId('e'),
             $f       = $.getId('f'),
             $g       = $.getId('g'),
@@ -73,5 +74,8 @@
         var cook = $.readCookie('foobar');
         $.log(cook);
 
+        // Truncation example
+        $.truncate($trunc, 100); // Truncate to 100 chars
+        
     });
 })(AWESOME);
