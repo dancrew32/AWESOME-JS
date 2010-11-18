@@ -74,14 +74,14 @@ var AWESOME = (function () {
 			}
 			obj = [].concat(obj);
 			for (var i = 0, len = obj.length; i < len; i++) {
-                if (obj[i].addEventListener) {
-                    obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
-                } else if (obj.attachEvent) {
-                    obj[i].attachEvent('on' + type, handler);
-                } else {
-                    obj[i]['on' + type] = handler;
-                }
-            }
+				if (obj[i].addEventListener) {
+					obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
+				} else if (obj.attachEvent) {
+					obj[i].attachEvent('on' + type, handler);
+				} else {
+					obj[i]['on' + type] = handler;
+				}
+			}
 		},
 		unbind: function (obj, type, handler, delegate) {
 			var delegate = delegate || false;
