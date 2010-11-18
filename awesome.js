@@ -67,56 +67,35 @@ var AWESOME = (function () {
 				event.cancelBubble = true;
 			}
 		},
-		// TODO: Eleminate redundant method
 		bind: function (obj, type, handler, delegate) {
-			var delegate = delegate || false,
-				len = obj.length;
+			var delegate = delegate || false;
 			if (typeof obj == 'undefined') {
 				return false;
 			}
-			if (len > 1) {
-				for (var i = 0; i < len; i++) {
-					if (obj.addEventListener) {
-						obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
-					} else if (obj.attachEvent) {
-						obj[i].attachEvent('on' + type, handler);
-					} else {
-						obj[i]['on' + type] = handler;
-					}
-				}
-			} else {
-				if (obj.addEventListener) {
-					obj.addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
-				} else if (obj.attachEvent) {
-					obj.attachEvent('on' + type, handler);
-				} else {
-					obj['on' + type] = handler;
-				}
-			}
+			obj = [].concat(obj);
+			for (var i = 0, len = obj.length; i < len; i++) {
+                if (obj[i].addEventListener) {
+                    obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
+                } else if (obj.attachEvent) {
+                    obj[i].attachEvent('on' + type, handler);
+                } else {
+                    obj[i]['on' + type] = handler;
+                }
+            }
 		},
 		unbind: function (obj, type, handler, delegate) {
-			var delegate = delegate || false,
-				len = obj.length;
+			var delegate = delegate || false;
 			if (typeof obj == 'undefined') {
 				return false;
 			}
-			if (len > 1) {
-				for (var i = 0; i < len; i++) {
-					if (obj.removeEventListener) {
-						obj[i].removeEventListener(type, handler, delegate);
-					} else if (obj.detachEvent) {
-						obj[i].detachEvent('on' + type, handler);
-					} else {
-						obj[i]['on' + type] = null;
-					}
-				}
-			} else {
-				if (obj.removeEventListener) {
-					obj.removeEventListener(type, handler, delegate);
-				} else if (obj.detachEvent) {
-					obj.detachEvent('on' + type, handler);
+			obj = [].concat(obj);
+			for (var i = 0, len = obj.length; i < len; i++) {
+				if (obj[i].removeEventListener) {
+					obj[i].removeEventListener(type, handler, delegate);
+				} else if (obj[i].detachEvent) {
+					obj[i].detachEvent('on' + type, handler);
 				} else {
-					obj['on' + type] = null;
+					obj[i]['on' + type] = null;
 				}
 			}
 		},
@@ -391,19 +370,12 @@ var AWESOME = (function () {
 		},
 		remove: function (ele) {
 			if (!ele) return false;
-			var len = ele.length;
-			if (len > 1) {
-				for (var i = 0; i < len; i++) {
-					if (!ele[i].parentNode) {
-						return false;
-					}
-					ele[i].parentNode.removeChild(ele[i]);
-				}
-			} else {
-				if (!ele.parentNode) {
+			ele = [].concat(ele);
+			for (var i = 0, len = ele.length; i < len; i++) {
+				if (!ele[i].parentNode) {
 					return false;
 				}
-				ele.parentNode.removeChild(ele);
+				ele[i].parentNode.removeChild(ele[i]);
 			}
 		},
 		create: function (tag) {
@@ -446,33 +418,20 @@ var AWESOME = (function () {
 		//	   }
 		// },
 		truncate: function(obj, len) {
-			var len = len || 80;
 			if (obj)
-			var olen = obj.length;
-			if (olen > 1) {
-				for (var i=0; i < olen; i++) {
-					var trunc = obj[i].innerHTML;
-					if (trunc.length > len) {
-						trunc = trunc.substring(0, len);
-						trunc = trunc.replace(/\w+$/, '');
-						trunc += '... <a href="#" ' +
-						'onclick="this.parentNode.innerHTML=' +
-						'unescape(\''+ escape(obj[i].innerHTML)+'\');return false;">' +
-						'Read More &raquo;<\/a>';
-						obj[i].innerHTML = trunc;
-					}	
-				}
-			} else {
-				var trunc = obj.innerHTML;
+			var len = len || 80;
+			obj = [].concat(obj);
+			for (var i = 0, olen = obj.length; i < olen; i++) {
+				var trunc = obj[i].innerHTML;
 				if (trunc.length > len) {
 					trunc = trunc.substring(0, len);
 					trunc = trunc.replace(/\w+$/, '');
 					trunc += '... <a href="#" ' +
 					'onclick="this.parentNode.innerHTML=' +
-					'unescape(\''+ escape(obj.innerHTML)+'\');return false;">' +
+					'unescape(\''+ escape(obj[i].innerHTML)+'\');return false;">' +
 					'Read More &raquo;<\/a>';
-					obj.innerHTML = trunc;
-				}
+					obj[i].innerHTML = trunc;
+				}	
 			}
 		},
 		getUrlVars: function () {
