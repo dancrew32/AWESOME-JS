@@ -272,53 +272,49 @@ var AWESOME = (function () {
 		// TODO: Make this an AWESOME plugin
 		tabs: function (ele, open, hist) {
 			var open = open || 1;
-			var sections = this.getClass('tab', ele, 'div');
-
-			if (hist) {
-				// Tab History
-			}
+			var $that = this;
+			var sections = $that.getClass('tab', ele, 'div');
+			var seclen = sections.length;
 
 			// If there are multiple sections, close sections, make tabs, open first
-			if (sections.length <= 1) {
-				return false;
-			}
-			this.addClass(ele, 'tab-container');
+			if (seclen <= 1) return;
+			$that.addClass(ele, 'tab-container');
 			var tabs = '';
-			for (var i = 0; i < sections.length; i++) {
-				// Hide sections
-				this.style(sections[i], 'display', 'none');
-
+			for (var i = 0; i < seclen; i++) {
+				$that.style(sections[i], 'display', 'none');
 				switch (i) {
-				case 0:
-					tabs += '<li class="first">';
+					case 0:
+						tabs += '<li class="first">';
 					break;
-				case (sections.length - 1):
-					tabs += '<li class="last">';
+					case (seclen - 1):
+						tabs += '<li class="last">';
 					break;
-				default:
+					default:
 					tabs += '<li>';
 				}
-				tabs += '<a href="#' + this.attr(sections[i], 'id') + '" data-id="' + i + '">' + this.attr(sections[i], 'title') + '</a></li>';
+				tabs += '<a href="#' + $that.attr(sections[i], 'id') + '" data-id="' + i + '">' + $that.attr(sections[i], 'title') + '</a></li>';
 				tabs += '</li>';
 			}
-			var tabset = this.create('ul');
-			this.prepend(ele, tabset);
-			this.addClass(tabset, 'tab-set clearfix');
+			var tabset = $that.create('ul');
+			$that.prepend(ele, tabset);
+			$that.addClass(tabset, 'tab-set clearfix');
 			tabset.innerHTML = tabs;
-			var tabs = this.getTag('li', tabset);
+			var tabs = $that.getTag('li', tabset);
+			var tabslen = tabs.length;
 
 			// Open appropriate Block
-			for (var j = 0; j < tabs.length; j++) {
-				AWESOME.bind(tabs[j].childNodes[0], 'click', function (e) {
+			for (var j = 0; j < seclen; j++) {
+				AWESOME.bind(tabs[j].childNodes[0], 'click', function(e) {
 					AWESOME.cancelEvent(e);
+					var $that = this;
 
-					for (var j = 0; j < tabs.length; j++) {
-						AWESOME.removeClass(tabs[j], 'active');
+					for (var k = 0; k < seclen; k++) {
+						AWESOME.removeClass(tabs[k], 'active');
 					}
-					AWESOME.addClass(this.parentNode, 'active');
-					var href = AWESOME.attr(this, 'href').split('#')[1];
-					for (var i = 0; i < sections.length; i++) {
-						AWESOME.style(sections[i], 'display', 'none');
+					AWESOME.addClass($that.parentNode, 'active');
+					var href = AWESOME.attr($that, 'href').split('#')[1];
+					for (var l = 0; l < seclen; l++) {
+						AWESOME.style(sections[l], 'display', 'none');
 					}
 					var openMe = AWESOME.getId(href);
 					AWESOME.style(openMe, 'display', 'block');
