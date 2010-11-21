@@ -359,6 +359,17 @@ var AWESOME = (function () {
 		encodeHTML: function (str) {
 			return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		},
+		text: function (obj, txt) {
+			if (txt) {
+				if (obj.innerText) {
+					obj.innerText = txt;
+				} else {
+					obj.textContent = txt;
+				}
+			} else {
+				return obj.innerText || obj.textContent;
+			}
+		},
 		prepend: function (p, c) {
 			p.insertBefore(c, p.childNodes[0]);
 		},
