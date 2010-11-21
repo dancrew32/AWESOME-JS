@@ -28,6 +28,10 @@
 
             $.screenOverlay(header, data);
         });
+        
+        
+        // Tooltip on top!
+        $.tooltip($.getTag('a', $e));
 
 
         // Make tabbed regions out of container and class="tab" child divs

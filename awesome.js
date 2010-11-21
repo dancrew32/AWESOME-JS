@@ -428,7 +428,7 @@ var AWESOME = (function () {
 		//		   fx.start();
 		//	   }
 		// },
-		truncate: function(obj, len) {
+		truncate: function (obj, len) {
 			if (obj)
 			var len = len || 80;
 			obj = [].concat(obj);
@@ -444,6 +444,44 @@ var AWESOME = (function () {
 					obj[i].innerHTML = trunc;
 				}	
 			}
+		},
+		tooltip: function (obj, pos, cls) {
+			if (obj)
+			var $that = this;
+			if (!$that.hasClass(obj, 'has-tip')) {
+			
+				var pos = pos || 'top',
+					cls = cls || 'tooltip',
+					title = $that.attr(obj, 'title'),
+					tip = $that.create('span');
+			
+				obj.title = null; // prevent browser tips
+				$that.addClass(obj, 'has-tip');
+				$that.style(obj, 'position', 'relative');
+				$that.prepend(obj, tip);
+				$that.style(tip, 'display', 'none');
+			
+				switch (pos) {
+					case 'left':
+						$that.addClass(tip, cls +' tipleft');
+					break;
+					case 'right':
+						$that.addClass(tip, cls +' tipright');
+					break;
+					case 'bottom':
+						$that.addClass(tip, cls +' tipbottom');
+					break;
+					default: // top
+						$that.addClass(tip, cls +' tiptop');
+				}
+				$that.text(tip, title);
+			}
+			// Tip
+		    $that.hover(obj, function() {
+		      $that.style(tip, 'display', 'block');
+		    }, function() {
+		      $that.style(tip, 'display', 'none');    
+		    });
 		},
 		getUrlVars: function () {
 			var vars = [],
