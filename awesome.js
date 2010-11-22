@@ -68,11 +68,13 @@ var AWESOME = (function () {
 			}
 		},
 		bind: function (obj, type, handler, delegate) {
-			var delegate = delegate || false;
 			if (typeof obj == 'undefined') {
 				return false;
 			}
-			obj = [].concat(obj);
+			var delegate = delegate || false;
+			if (!('length' in obj)) {
+    			obj = [obj];
+    		}
 			for (var i = 0, len = obj.length; i < len; i++) {
 				if (obj[i].addEventListener) {
 					obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
@@ -88,7 +90,9 @@ var AWESOME = (function () {
 			if (typeof obj == 'undefined') {
 				return false;
 			}
-			obj = [].concat(obj);
+			if (!('length' in obj)) {
+    			obj = [obj];
+    		}
 			for (var i = 0, len = obj.length; i < len; i++) {
 				if (obj[i].removeEventListener) {
 					obj[i].removeEventListener(type, handler, delegate);
@@ -207,9 +211,6 @@ var AWESOME = (function () {
 				makeBottom();
 			});
 		},
-		// Helps blank out the screen for lightbox-style effects
-		// TODO: Turn this into an AWESOME plugin
-		// TODO: add ARIA
 		screenOverlay: function (header, data, lightboxId) {
 			var header = header || null,
 				data = data || null,
@@ -273,7 +274,6 @@ var AWESOME = (function () {
 				if (AWESOME.hasClass(document.documentElement, 'has-overlay')) makeOverlay(AWESOME.docWidth(), AWESOME.docHeight(), id);
 			});
 		},
-		// TODO: Make this an AWESOME plugin
 		tabs: function (ele, open, hist) {
 			var open = open || 1;
 			var $that = this;
@@ -381,7 +381,9 @@ var AWESOME = (function () {
 		},
 		remove: function (ele) {
 			if (!ele) return false;
-			ele = [].concat(ele);
+			if (!('length' in ele)) {
+    			ele = [ele];
+    		}
 			for (var i = 0, len = ele.length; i < len; i++) {
 				if (!ele[i].parentNode) {
 					return false;
@@ -431,7 +433,9 @@ var AWESOME = (function () {
 		truncate: function (obj, len) {
 			if (obj)
 			var len = len || 80;
-			obj = [].concat(obj);
+			if (!('length' in obj)) {
+    			obj = [obj];
+    		}
 			for (var i = 0, olen = obj.length; i < olen; i++) {
 				var trunc = obj[i].innerHTML;
 				if (trunc.length > len) {
@@ -448,40 +452,46 @@ var AWESOME = (function () {
 		tooltip: function (obj, pos, cls) {
 			if (obj)
 			var $that = this;
-			if (!$that.hasClass(obj, 'has-tip')) {
+			if (!('length' in obj)) {
+    			obj = [obj];
+    		}
+    		
+			for (var i = 0, olen = obj.length; i < olen; i++) {
+				if (!$that.hasClass(obj[i], 'has-tip')) {
+				
+					var pos = pos || 'top',
+						cls = cls || 'tooltip',
+						title = $that.attr(obj[i], 'title'),
+						tip = $that.create('span');
 			
-				var pos = pos || 'top',
-					cls = cls || 'tooltip',
-					title = $that.attr(obj, 'title'),
-					tip = $that.create('span');
+					obj[i].title = null; // prevent browser tips
+					$that.addClass(obj[i], 'has-tip');
+					$that.style(obj[i], 'position', 'relative');
+					$that.prepend(obj[i], tip);
+					$that.style(tip, 'display', 'none');
 			
-				obj.title = null; // prevent browser tips
-				$that.addClass(obj, 'has-tip');
-				$that.style(obj, 'position', 'relative');
-				$that.prepend(obj, tip);
-				$that.style(tip, 'display', 'none');
-			
-				switch (pos) {
-					case 'left':
-						$that.addClass(tip, cls +' tipleft');
-					break;
-					case 'right':
-						$that.addClass(tip, cls +' tipright');
-					break;
-					case 'bottom':
-						$that.addClass(tip, cls +' tipbottom');
-					break;
-					default: // top
-						$that.addClass(tip, cls +' tiptop');
+					switch (pos) {
+						case 'left':
+							$that.addClass(tip, cls +' tipleft');
+						break;
+						case 'right':
+							$that.addClass(tip, cls +' tipright');
+						break;
+						case 'bottom':
+							$that.addClass(tip, cls +' tipbottom');
+						break;
+						default: // top
+							$that.addClass(tip, cls +' tiptop');
+					}
+					$that.text(tip, title);
 				}
-				$that.text(tip, title);
+				// Tip hover
+				$that.hover(obj[i], function() {
+					$that.style(this.childNodes[0], 'display', 'block');
+				}, function() {
+					$that.style(this.childNodes[0], 'display', 'none');    
+				});
 			}
-			// Tip
-		    $that.hover(obj, function() {
-		      $that.style(tip, 'display', 'block');
-		    }, function() {
-		      $that.style(tip, 'display', 'none');    
-		    });
 		},
 		getUrlVars: function () {
 			var vars = [],

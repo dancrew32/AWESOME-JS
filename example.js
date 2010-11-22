@@ -30,12 +30,15 @@
         });
         
         
-        // Tooltip on top!
-        $.tooltip($.getTag('a', $e));
+        // Tooltips
+        $.tooltip($.getTag('a', $e)); // top (default)
+        // $.tooltip($.getTag('a', $e), 'left'); // left
+        // $.tooltip($.getTag('a', $e), 'right'); // right
+        // $.tooltip($.getTag('a', $e), 'bottom'); // bottom
 
 
         // Make tabbed regions out of container and class="tab" child divs
-        $.tabs($tabbed, 1);
+        $.tabs($tabbed, 1); // First tab open
 
 
         // Create/Place/Remove
