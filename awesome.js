@@ -108,8 +108,9 @@ var AWESOME = (function () {
 			if (typeof obj == 'undefined') {
 				return false;
 			}
-			AWESOME.bind(obj, 'mouseover', over, delegate);
-			if (out) AWESOME.bind(obj, 'mouseout', out, delegate);
+			var $that = this;
+			$that.bind(obj, 'mouseover', over, delegate);
+			if (out) $that.bind(obj, 'mouseout', out, delegate);
 		},
 		hasClass: function (ele, cls) {
 			return ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
@@ -200,45 +201,46 @@ var AWESOME = (function () {
 			return Math.max(D.body.clientWidth, D.documentElement.clientWidth);
 		},
 		bottomBar: function (ele) {
+			var $that = this;
 			function makeBottom() {
-				var barheight = AWESOME.attr(ele, 'offsetHeight')
-				AWESOME.style(ele, 'bottom', 'auto');
-				AWESOME.style(ele, 'top', ((AWESOME.docHeight() - barheight) + 'px'));
+				var barheight = $that.attr(ele, 'offsetHeight')
+				$that.style(ele, 'bottom', 'auto');
+				$that.style(ele, 'top', (($that.docHeight() - barheight) + 'px'));
 			}
 			makeBottom();
 
-			AWESOME.bind(window, 'resize', function () {
+			$that.bind(window, 'resize', function () {
 				makeBottom();
 			});
 		},
 		screenOverlay: function (header, data, lightboxId) {
-			var header = header || null,
+			var $that = this,
+				header = header || null,
 				data = data || null,
 				lightboxId = lightboxId || 'lightbox',
 				id = 'screen-overlayer';
 
 			// Make Viewport-sized grey area
 			function makeOverlay(windowWidth, windowHeight, id) {
-				var $body = document.body;
-
-				var overlayer = AWESOME.getId(id),
-					lightbox = AWESOME.getId(lightboxId),
-					lightboxClose = AWESOME.getId(lightboxId + '-close');
+				var $body = document.body,
+					overlayer = $that.getId(id),
+					lightbox = $that.getId(lightboxId),
+					lightboxClose = $that.getId(lightboxId + '-close');
 
 				if (!overlayer && !lightbox) {
-					var overlayDIV = AWESOME.create('div'),
-						lightboxDIV = AWESOME.create('div');
+					var overlayDIV = $that.create('div'),
+						lightboxDIV = $that.create('div');
 
-					AWESOME.prepend($body, overlayDIV);
-					AWESOME.attr(overlayDIV, 'id', id);
+					$that.prepend($body, overlayDIV);
+					$that.attr(overlayDIV, 'id', id);
 
-					AWESOME.prepend($body, lightboxDIV);
-					AWESOME.attr(lightboxDIV, 'id', lightboxId);
+					$that.prepend($body, lightboxDIV);
+					$that.attr(lightboxDIV, 'id', lightboxId);
 
-					AWESOME.addClass(document.documentElement, 'has-overlay');
+					$that.addClass(document.documentElement, 'has-overlay');
 
-					var overlayer = AWESOME.getId(id),
-						lightbox = AWESOME.getId(lightboxId);
+					var overlayer = $that.getId(id),
+						lightbox = $that.getId(lightboxId);
 
 					// Output for lightbox
 					var lightboxOutput = '<a href="#' + lightboxId + '-close" id="' + lightboxId + '-close">Close</a><div id="' + lightboxId + '-inner">';
@@ -248,37 +250,37 @@ var AWESOME = (function () {
 					lightboxOutput += '<div class="content">' + data + '</div></div>';
 					lightbox.innerHTML = lightboxOutput;
 
-					var lightboxClose = AWESOME.getId(lightboxId + '-close');
+					var lightboxClose = $that.getId(lightboxId + '-close');
 				}
 
-				AWESOME.style(overlayer, 'width', windowWidth + 'px');
-				AWESOME.style(overlayer, 'height', windowHeight + 'px');
+				$that.style(overlayer, 'width', windowWidth + 'px');
+				$that.style(overlayer, 'height', windowHeight + 'px');
 
 				function closeOverlay() {
-					AWESOME.removeClass(document.documentElement, 'has-overlay');
-					AWESOME.remove(lightbox);
-					AWESOME.remove(overlayer);
+					$that.removeClass(document.documentElement, 'has-overlay');
+					$that.remove(lightbox);
+					$that.remove(overlayer);
 				}
 
-				AWESOME.bind(overlayer, 'click', function () {
+				$that.bind(overlayer, 'click', function () {
 					closeOverlay();
 				});
-				AWESOME.bind(lightboxClose, 'click', function (e) {
-					AWESOME.cancelEvent(e);
+				$that.bind(lightboxClose, 'click', function (e) {
+					$that.cancelEvent(e);
 					closeOverlay();
 				});
 			}
-			makeOverlay(AWESOME.docWidth(), AWESOME.docHeight(), id);
+			makeOverlay($that.docWidth(), $that.docHeight(), id);
 
-			AWESOME.bind(window, 'resize', function () {
-				if (AWESOME.hasClass(document.documentElement, 'has-overlay')) makeOverlay(AWESOME.docWidth(), AWESOME.docHeight(), id);
+			$that.bind(window, 'resize', function () {
+				if ($that.hasClass(document.documentElement, 'has-overlay')) makeOverlay($that.docWidth(), $that.docHeight(), id);
 			});
 		},
 		tabs: function (ele, open, hist) {
-			var open = open || 1;
-			var $that = this;
-			var sections = $that.getClass('tab', ele, 'div');
-			var seclen = sections.length;
+			var $that = this,
+				open = open || 1,
+				sections = $that.getClass('tab', ele, 'div'),
+				seclen = sections.length;
 
 			// If there are multiple sections, close sections, make tabs, open first
 			if (seclen <= 1) return;
@@ -308,34 +310,33 @@ var AWESOME = (function () {
 
 			// Open appropriate Block
 			for (var j = 0; j < seclen; j++) {
-				AWESOME.bind(tabs[j].childNodes[0], 'click', function(e) {
-					AWESOME.cancelEvent(e);
-					var $that = this;
+				$that.bind(tabs[j].childNodes[0], 'click', function(e) {
+					$that.cancelEvent(e);
 
 					for (var k = 0; k < seclen; k++) {
-						AWESOME.removeClass(tabs[k], 'active');
+						$that.removeClass(tabs[k], 'active');
 					}
-					AWESOME.addClass($that.parentNode, 'active');
-					var href = AWESOME.attr($that, 'href').split('#')[1];
+					$that.addClass(this.parentNode, 'active');
+					var href = $that.attr(this, 'href').split('#')[1];
 					for (var l = 0; l < seclen; l++) {
-						AWESOME.style(sections[l], 'display', 'none');
+						$that.style(sections[l], 'display', 'none');
 					}
-					var openMe = AWESOME.getId(href);
-					AWESOME.style(openMe, 'display', 'block');
+					var openMe = $that.getId(href);
+					$that.style(openMe, 'display', 'block');
 				});
 			}
 
 			// Open Default block
 			if (open) {
 				for (var i = 0; i < sections.length; i++) {
-					AWESOME.style(sections[i], 'display', 'none');
+					$that.style(sections[i], 'display', 'none');
 				}
-				AWESOME.style(sections[open - 1], 'display', 'block');
+				$that.style(sections[open - 1], 'display', 'block');
 
 				for (var j = 0; j < tabs.length; j++) {
-					AWESOME.removeClass(tabs[j], 'active');
+					$that.removeClass(tabs[j], 'active');
 				}
-				AWESOME.addClass(tabs[open - 1], 'active');
+				$that.addClass(tabs[open - 1], 'active');
 
 				open = null;
 			}
