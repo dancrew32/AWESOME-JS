@@ -1,11 +1,6 @@
-Awesome Stats:
-Original Size: 12.93KB (4.04KB gzipped)
-Google Closure Compiler (simple optimizations): 7.68KB (2.74KB gzipped)
+Current Awesome Stats:
+Google Closure Compiler (simple optimizations): 7.68KB (3KB gzipped)
 
-Awesome is awesome because it loads almost instantly, allowing you to perform common javascript tasks without annoying load-time lag.
+Awesome is awesome because it loads almost instantly, allowing you to perform common JavaScript tasks without annoying load-time lag. My goal is to perform as many common jQuery and plugin methods as possible while keeping the compressed source size under 5kb.
 
 Read example.js to see common implementations. 
-
-TODO:
-
-I should probably turn lightbox and tabs methods into awesome plugins. Doing so would make this script much smaller. 
