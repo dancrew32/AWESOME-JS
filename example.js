@@ -41,6 +41,14 @@
         $.tabs($tabbed, 1); // First tab open
 
 
+		// Animation 
+		$.animate($f, {
+			'color': { to : 'f00f00' }
+		}, 1000, function() {
+			$.log('foo');
+		});
+		
+
         // Create/Place/Remove
         var $h = $.create('section');
             $h.innerHTML = 'I am ';

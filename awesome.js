@@ -424,13 +424,10 @@ var AWESOME = (function () {
 			}
 			return null;
 		},
-		// Animation coming soon
-		// animate: function (ele, props, time, callback, context) {
-		//	   if (FX) {
-		//		   var fx = new FX(ele, props, time);
-		//		   fx.start();
-		//	   }
-		// },
+		animate: function (ele, props, time, callback) {
+			var fx = new FX(ele, props, time, callback);
+			fx.start();
+		},
 		truncate: function (obj, len) {
 			if (obj)
 			var len = len || 80;
