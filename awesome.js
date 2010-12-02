@@ -213,19 +213,25 @@ var AWESOME = (function () {
 				makeBottom();
 			});
 		},
-		screenOverlay: function (header, data, lightboxId) {
-			var $that = this,
-				header = header || null,
-				data = data || null,
-				lightboxId = lightboxId || 'lightbox',
-				id = 'screen-overlayer';
+		screenOverlay: function (options) {
+			var defaults = {
+				header: null,
+				headerType: 'h2',
+				data: null,
+				lightboxId: 'lightbox',
+				id: 'screen-overlayer'
+			};
+			for (var index in defaults) {
+				if (typeof options[index] == 'undefined') options[index] = defaults[index];
+			}
+			var $that = this;
 
 			// Make Viewport-sized grey area
 			function makeOverlay(windowWidth, windowHeight, id) {
 				var $body = document.body,
 					overlayer = $that.getId(id),
-					lightbox = $that.getId(lightboxId),
-					lightboxClose = $that.getId(lightboxId + '-close');
+					lightbox = $that.getId(options.lightboxId),
+					lightboxClose = $that.getId(options.lightboxId + '-close');
 
 				if (!overlayer && !lightbox) {
 					var overlayDIV = $that.create('div'),
@@ -235,22 +241,22 @@ var AWESOME = (function () {
 					$that.attr(overlayDIV, 'id', id);
 
 					$that.prepend($body, lightboxDIV);
-					$that.attr(lightboxDIV, 'id', lightboxId);
+					$that.attr(lightboxDIV, 'id', options.lightboxId);
 
 					$that.addClass(document.documentElement, 'has-overlay');
 
 					var overlayer = $that.getId(id),
-						lightbox = $that.getId(lightboxId);
+						lightbox = $that.getId(options.lightboxId);
 
 					// Output for lightbox
-					var lightboxOutput = '<a href="#' + lightboxId + '-close" id="' + lightboxId + '-close">Close</a><div id="' + lightboxId + '-inner">';
-					if (header) {
-						lightboxOutput += '<div class="header"><h2>' + header + '</h2></div>'; // TODO: Determine if h2/h3 is appropriate
+					var lightboxOutput = '<a href="#' + options.lightboxId + '-close" id="' + options.lightboxId + '-close">Close</a><div id="' + options.lightboxId + '-inner">';
+					if (options.header) {
+						lightboxOutput += '<div class="header"><' + options.headerType + '>' + options.header + '</' + options.headerType + '></div>';
 					}
-					lightboxOutput += '<div class="content">' + data + '</div></div>';
+					lightboxOutput += '<div class="content">' + options.data + '</div></div>';
 					lightbox.innerHTML = lightboxOutput;
 
-					var lightboxClose = $that.getId(lightboxId + '-close');
+					var lightboxClose = $that.getId(options.lightboxId + '-close');
 				}
 
 				$that.style(overlayer, 'width', windowWidth + 'px');
@@ -270,10 +276,11 @@ var AWESOME = (function () {
 					closeOverlay();
 				});
 			}
-			makeOverlay($that.docWidth(), $that.docHeight(), id);
+			makeOverlay($that.docWidth(), $that.docHeight(), options.id);
 
 			$that.bind(window, 'resize', function () {
-				if ($that.hasClass(document.documentElement, 'has-overlay')) makeOverlay($that.docWidth(), $that.docHeight(), id);
+				if ($that.hasClass(document.documentElement, 'has-overlay')) 
+					makeOverlay($that.docWidth(), $that.docHeight(), options.id);
 			});
 		},
 		tabs: function (ele, open, hist) {
@@ -533,7 +540,7 @@ var AWESOME = (function () {
 				}
 				req.send(this.postBody);
 			}
-		}
+		},
 		// getRemote: function(url, remoteSelector, localSelector) {
 		//	 var localSelector = localSelector || this.getTag('body');
 		//	 var remoteSelector = remoteSelector || '';

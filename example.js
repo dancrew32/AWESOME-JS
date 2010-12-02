@@ -26,7 +26,10 @@
             var header = "Here's My Lightbox!",
                 data = "Here is my text content for this lightbox";
 
-            $.screenOverlay(header, data);
+            $.screenOverlay({
+            	header: header, 
+            	data: data
+            });
         });
         
         
