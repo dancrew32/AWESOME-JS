@@ -35,9 +35,15 @@
         
         // Tooltips
         $.tooltip($.getTag('a', $e)); // top (default)
-        // $.tooltip($.getTag('a', $e), 'left'); // left
-        // $.tooltip($.getTag('a', $e), 'right'); // right
-        // $.tooltip($.getTag('a', $e), 'bottom'); // bottom
+        //$.tooltip($.getTag('a', $e), {
+        //	pos: 'left'
+        //});
+        //$.tooltip($.getTag('a', $e), {
+        //	pos: 'right'
+        //});
+        //$.tooltip($.getTag('a', $e), {
+        //	pos: 'bottom'
+        //});
 
 
         // Make tabbed regions out of container and class="tab" child divs

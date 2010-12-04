@@ -1,9 +1,15 @@
 Current Awesome Stats:
-Google Closure Compiler (simple optimizations): 7.68KB (3KB gzipped)
+(These stats are skewed because they include ALL of the plugins,
+which could easily be separated out of core)
+
+Original Size: 	14.76KB (4.45KB gzipped)
+Google Closure Compiled Size: 	8.91KB (3.24KB gzipped)
+
+--
 
 Awesome is awesome because it loads almost instantly, allowing you to 
 perform common JavaScript tasks without annoying load-time lag. My 
 goal is to perform as many common jQuery and plugin methods as possible 
-while keeping the compressed source size under 5kb.
+while keeping the compressed/gzipped source size under 5kb.
 
-Read example.js to see common implementations. 
+Read example.js or see the wiki for implementation examples! 

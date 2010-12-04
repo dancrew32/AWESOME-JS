@@ -582,7 +582,7 @@ var AWESOME = (function () {
 				}
 				req.send(this.postBody);
 			}
-		},
+		}
 		// getRemote: function(url, remoteSelector, localSelector) {
 		//	 var localSelector = localSelector || this.getTag('body');
 		//	 var remoteSelector = remoteSelector || '';
