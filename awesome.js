@@ -400,8 +400,8 @@ var AWESOME = (function () {
 		prepend: function (p, c) {
 			p.insertBefore(c, p.childNodes[0]);
 		},
-		insertAfter: function (p, node, refNode) {
-			p.insertBefore(node, refNode.nextSibling);
+		insertAfter: function (node, refNode) {
+			node.parentNode.insertBefore(node, refNode.nextSibling);
 		},
 		swap: function (a, b) {
 			a.parentNode.replaceChild(b, a);

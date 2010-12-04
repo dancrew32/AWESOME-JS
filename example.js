@@ -67,9 +67,9 @@
         // Append 
             // $a.appendChild($h);
         // After
-            // $.insertAfter($sec, mySpan, $dispc);
+            //$.insertAfter($a, $h);
         // Swap A with B (destructive)
-            // $.swap($dispc, mySpan);
+            // $.swap($a, $b);
         // Remove element
             // $.remove($h);
             
