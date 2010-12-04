@@ -221,8 +221,13 @@ var AWESOME = (function () {
 				lightboxId: 'lightbox',
 				id: 'screen-overlayer'
 			};
-			for (var index in defaults) {
-				if (typeof options[index] == 'undefined') options[index] = defaults[index];
+			if (!options) {
+				var options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') 
+						options[index] = defaults[index];
+				}
 			}
 			var $that = this;
 
@@ -283,11 +288,23 @@ var AWESOME = (function () {
 					makeOverlay($that.docWidth(), $that.docHeight(), options.id);
 			});
 		},
-		tabs: function (ele, open, hist) {
+		tabs: function (ele, options) {
 			var $that = this,
-				open = open || 1,
 				sections = $that.getClass('tab', ele, 'div'),
-				seclen = sections.length;
+				seclen = sections.length,
+				defaults = {
+					open: 1,
+					hist: false
+				};
+				
+			if (!options) {
+				var options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') 
+						options[index] = defaults[index];
+				}
+			}
 
 			// If there are multiple sections, close sections, make tabs, open first
 			if (seclen <= 1) return;
@@ -324,28 +341,30 @@ var AWESOME = (function () {
 						$that.removeClass(tabs[k], 'active');
 					}
 					$that.addClass(this.parentNode, 'active');
-					var href = $that.attr(this, 'href').split('#')[1];
+					var href = $that.attr(this, 'href').split('#')[1];	
 					for (var l = 0; l < seclen; l++) {
 						$that.style(sections[l], 'display', 'none');
 					}
 					var openMe = $that.getId(href);
 					$that.style(openMe, 'display', 'block');
+					
 				});
 			}
 
+			
 			// Open Default block
-			if (open) {
+			if (options.open) {
 				for (var i = 0; i < sections.length; i++) {
 					$that.style(sections[i], 'display', 'none');
 				}
-				$that.style(sections[open - 1], 'display', 'block');
+				$that.style(sections[options.open - 1], 'display', 'block');
 
 				for (var j = 0; j < tabs.length; j++) {
 					$that.removeClass(tabs[j], 'active');
 				}
-				$that.addClass(tabs[open - 1], 'active');
+				$that.addClass(tabs[options.open - 1], 'active');
 
-				open = null;
+				options.open = null;
 			}
 		},
 		attr: function (ele, attr, newVal) {
@@ -435,38 +454,61 @@ var AWESOME = (function () {
 			var fx = new FX(ele, props, time, callback);
 			fx.start();
 		},
-		truncate: function (obj, len) {
+		truncate: function (obj, options) {
 			if (obj)
-			var len = len || 80;
 			if (!('length' in obj)) {
     			obj = [obj];
     		}
+			var defaults = {
+				len: 80,
+				elipsis: '... ',
+				moreText: 'Read More &raquo;'
+			};
+			if (!options) {
+				var options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') 
+						options[index] = defaults[index];
+				}
+			}
+			
 			for (var i = 0, olen = obj.length; i < olen; i++) {
 				var trunc = obj[i].innerHTML;
-				if (trunc.length > len) {
-					trunc = trunc.substring(0, len);
+				if (trunc.length > options.len) {
+					trunc = trunc.substring(0, options.len);
 					trunc = trunc.replace(/\w+$/, '');
-					trunc += '... <a href="#" ' +
+					trunc += options.elipsis + '<a href="#" ' +
 					'onclick="this.parentNode.innerHTML=' +
 					'unescape(\''+ escape(obj[i].innerHTML)+'\');return false;">' +
-					'Read More &raquo;<\/a>';
+					options.moreText + '<\/a>';
 					obj[i].innerHTML = trunc;
 				}	
 			}
 		},
-		tooltip: function (obj, pos, cls) {
+		tooltip: function (obj, options) {
 			if (obj)
 			var $that = this;
 			if (!('length' in obj)) {
     			obj = [obj];
     		}
+    		var defaults = {
+    			pos: 'top',
+    			cls: 'tooltip'
+			};
+			if (!options) {
+				var options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') 
+						options[index] = defaults[index];
+				}
+			}
     		
 			for (var i = 0, olen = obj.length; i < olen; i++) {
 				if (!$that.hasClass(obj[i], 'has-tip')) {
 				
-					var pos = pos || 'top',
-						cls = cls || 'tooltip',
-						title = $that.attr(obj[i], 'title'),
+					var title = $that.attr(obj[i], 'title'),
 						tip = $that.create('span');
 			
 					obj[i].title = null; // prevent browser tips
@@ -475,18 +517,18 @@ var AWESOME = (function () {
 					$that.prepend(obj[i], tip);
 					$that.style(tip, 'display', 'none');
 			
-					switch (pos) {
+					switch (options.pos) {
 						case 'left':
-							$that.addClass(tip, cls +' tipleft');
+							$that.addClass(tip, options.cls +' tipleft');
 						break;
 						case 'right':
-							$that.addClass(tip, cls +' tipright');
+							$that.addClass(tip, options.cls +' tipright');
 						break;
 						case 'bottom':
-							$that.addClass(tip, cls +' tipbottom');
+							$that.addClass(tip, options.cls +' tipbottom');
 						break;
 						default: // top
-							$that.addClass(tip, cls +' tiptop');
+							$that.addClass(tip, options.cls +' tiptop');
 					}
 					$that.text(tip, title);
 				}

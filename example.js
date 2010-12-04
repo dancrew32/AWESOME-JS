@@ -41,7 +41,10 @@
 
 
         // Make tabbed regions out of container and class="tab" child divs
-        $.tabs($tabbed, 1); // First tab open
+        $.tabs($tabbed, {
+        	open: 1,
+        	hist: true
+        }); // First tab open
 
 
 		// Animation 
@@ -93,7 +96,15 @@
         $.log(cook);
 
         // Truncation example
-        $.truncate($trunc, 100); // Truncate to 100 chars
+        $.truncate($trunc, {
+        	len: 100,
+        	elipsis: null,
+        	moreText: '...'
+        }); // Truncate to 100 chars
         
+        // $.history();
+        //invoke back
+        // window.history.back();
+        // window.history.forward();
     });
 })(AWESOME);
