@@ -112,5 +112,11 @@
         //invoke back
         // window.history.back();
         // window.history.forward();
+        
+        
+        $.textLimit($.getTag('input'), {
+        	maximum: 15
+       	});
+        
     });
 })(AWESOME);

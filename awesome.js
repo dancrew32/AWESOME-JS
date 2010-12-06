@@ -326,7 +326,7 @@ var AWESOME = (function () {
 				tabs += '</li>';
 			}
 			var tabset = $that.create('ul');
-			$that.prepend(ele, tabset);
+			$that.prepend(tabset, ele);
 			$that.addClass(tabset, 'tab-set clearfix');
 			tabset.innerHTML = tabs;
 			var tabs = $that.getTag('li', tabset);
@@ -397,11 +397,17 @@ var AWESOME = (function () {
 				return obj.innerText || obj.textContent;
 			}
 		},
-		prepend: function (p, c) {
-			p.insertBefore(c, p.childNodes[0]);
+		prepend: function (newNode, node) {
+			node.insertBefore(newNode, node.childNodes[0]);
 		},
-		insertAfter: function (node, refNode) {
-			node.parentNode.insertBefore(node, refNode.nextSibling);
+		append: function (newNode, node) {
+			node.appendChild(newNode)
+		},
+		before: function (newNode, node) {
+			node.parentNode.insertBefore(newNode, node);
+		},
+		after: function (newNode, node) {
+			node.parentNode.insertBefore(newNode, node.nextSibling);
 		},
 		swap: function (a, b) {
 			a.parentNode.replaceChild(b, a);
@@ -514,7 +520,7 @@ var AWESOME = (function () {
 					obj[i].title = null; // prevent browser tips
 					$that.addClass(obj[i], 'has-tip');
 					$that.style(obj[i], 'position', 'relative');
-					$that.prepend(obj[i], tip);
+					$that.prepend(tip, obj[i]);
 					$that.style(tip, 'display', 'none');
 			
 					switch (options.pos) {
@@ -581,6 +587,87 @@ var AWESOME = (function () {
 					req.open('GET', url, true);
 				}
 				req.send(this.postBody);
+			}
+		},
+		textLimit: function(obj, options) {
+			if (obj)
+			if (!('length' in obj)) {
+    			obj = [obj];
+    		}
+			var defaults = {
+    			maximum: 200,
+    			warningCount: 10,
+    			warningClass: 'limit-warning',
+    			pos: 'after',
+    			countClass: 'limit-count',
+    			countPrefix: null,
+    			countSuffix: ' Characters Remaining'
+			};
+			var $that = this;
+			if (!options) {
+				var options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') 
+						options[index] = defaults[index];
+				}
+			}
+			
+			// init
+			for (var i = 0, olen = obj.length; i < olen; i++) {
+				var counter = $that.create('span');
+				var initCount = obj[i].value.length;
+				var tempCount = options.maximum;
+				var lenAttr = $that.attr(obj[i], 'length');
+				
+				if (lenAttr && lenAttr <= options.maximum) {
+					tempCount = $that.attr(obj[i], 'length');
+				}
+				
+				if (options.pos == 'after') {
+					$that.after(counter, obj[i]);
+				} else {					
+					$that.before(counter, obj[i]);
+				}
+				$that.addClass(counter, options.countClass);
+				$that.text(counter, options.countPrefix + (tempCount - initCount) + options.countSuffix);
+			
+				$that.bind(obj[i], 'keyup', function() {
+					var input = this;
+					var inputlen = input.value.length;
+					tempCount = options.maximum; // reset just in case
+					var lenAttr = $that.attr(input, 'length');					
+					if (lenAttr && lenAttr <= options.maximum) {
+						tempCount = lenAttr;
+					}
+					
+					// Update Text
+					if (inputlen > options.maximum) {
+						input.value = input.value.substr(0, options.maximum);
+					} else {
+						if (options.pos == 'after') {
+							$that.text(input.nextSibling, options.countPrefix + (tempCount - inputlen) + options.countSuffix);
+						} else {
+							$that.text(input.previousSibling, options.countPrefix + (tempCount - inputlen) + options.countSuffix);
+						}
+					}
+					
+					// Warning Level
+					if (tempCount - inputlen < options.warningCount) {
+						if (options.pos == 'after') {
+							$that.addClass(input.nextSibling, options.warningClass);	
+						} else {
+							$that.addClass(input.previousSibling, options.warningClass);					
+						}
+					} else {
+						if (options.pos == 'after') {
+							$that.removeClass(input.nextSibling, options.warningClass);
+						} else {
+							$that.removeClass(input.previousSibling, options.warningClass);
+						}
+					}
+					// TODO: simplify above, add option for negative value instead of truncate show negative value method
+				});
 			}
 		}
 		// getRemote: function(url, remoteSelector, localSelector) {

@@ -302,3 +302,11 @@ a.has-tip {
 	right:-130px;
 	width:100px;
 }
+
+/* textLimit plugin */
+.limit-count {
+	
+}
+.limit-warning {
+	color:#c00;
+}
