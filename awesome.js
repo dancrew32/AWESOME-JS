@@ -242,10 +242,10 @@ var AWESOME = (function () {
 					var overlayDIV = $that.create('div'),
 						lightboxDIV = $that.create('div');
 
-					$that.prepend($body, overlayDIV);
+					$that.prepend(overlayDIV, $body);
 					$that.attr(overlayDIV, 'id', id);
 
-					$that.prepend($body, lightboxDIV);
+					$that.prepend(lightboxDIV, $body);
 					$that.attr(lightboxDIV, 'id', options.lightboxId);
 
 					$that.addClass(document.documentElement, 'has-overlay');

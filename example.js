@@ -62,18 +62,18 @@
 		
 
         // Create/Place/Remove
-        var $h = $.create('section');
-            $h.innerHTML = 'I am ';
-            $.attr($h, 'id', 'h'); // setter
-            $.log($.attr($h, 'id')); // getter
-        // Before
-            // container.insertBefore($h, innerContainer);
-        // Prepend
-            // $.prepend($a, $h);
-        // Append 
-            // $a.appendChild($h);
-        // After
-            //$.insertAfter($a, $h);
+        var newNode = $.create('section');
+            newNode.innerHTML = 'I am ';
+            $.attr(newNode, 'id', 'h'); // setter
+            $.log($.attr(newNode, 'id')); // getter
+        // Before (insert newNode before node)
+            // $.before(newNode, node);
+        // Prepend (prepend newNode to $a)
+            // $.prepend(newNode, $a);
+        // Append (append newNode to $a)
+            // $.append(newNode, $a);
+        // After (insert newNode after $a)
+            //$.after(newNode, $a);
         // Swap A with B (destructive)
             // $.swap($a, $b);
         // Remove element
