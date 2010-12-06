@@ -642,8 +642,8 @@ var AWESOME = (function () {
 					}
 					
 					// Update Text
-					if (inputlen > options.maximum) {
-						input.value = input.value.substr(0, options.maximum);
+					if (inputlen > tempCount) {
+						input.value = input.value.substr(0, tempCount);
 					} else {
 						if (options.pos == 'after') {
 							$that.text(input.nextSibling, options.countPrefix + (tempCount - inputlen) + options.countSuffix);
