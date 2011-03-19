@@ -18,7 +18,7 @@ var AWESOME = (function () {
 					} else if ( !! document.documentElement.doScroll) {
 						try {
 							ready || document.documentElement.doScroll('left');
-						} catch (e) {
+						} catch (ex) {
 							return;
 						}
 						fireDOMReady();
@@ -31,21 +31,23 @@ var AWESOME = (function () {
 					// Call the onload function in given context or window object
 					fn.call(ctx || window);
 					// Clean up after the DOM is ready
-					if (document.removeEventListener) document.removeEventListener('DOMContentLoaded', onStateChange, false);
-					document.onreadystatechange = null;
-					window.onload = null;
-					clearInterval(timer);
-					timer = null;
+					if (document.removeEventListener) 
+						document.removeEventListener('DOMContentLoaded', onStateChange, false);
+						document.onreadystatechange = null;
+						window.onload = null;
+						clearInterval(timer);
+						timer = null;
 				}
 			};
 			// Mozilla & Opera
-			if (document.addEventListener) document.addEventListener('DOMContentLoaded', onStateChange, false);
-			// IE
-			document.onreadystatechange = onStateChange;
-			// Safari & IE
-			timer = setInterval(onStateChange, 5);
-			// Legacy
-			window.onload = onStateChange;
+			if (document.addEventListener) 
+				document.addEventListener('DOMContentLoaded', onStateChange, false);
+				// IE
+				document.onreadystatechange = onStateChange;
+				// Safari & IE
+				timer = setInterval(onStateChange, 5);
+				// Legacy
+				window.onload = onStateChange;
 		},
 		log: function (data) {
 			if (typeof console !== 'undefined') {
@@ -68,14 +70,13 @@ var AWESOME = (function () {
 			}
 		},
 		bind: function (obj, type, handler, delegate) {
-			if (typeof obj == 'undefined') {
-				return false;
+			if (typeof obj == 'undefined' || obj == null) {return;}
+			delegate = delegate || false;
+			if (typeof obj.length == 'undefined') {
+				obj = [obj];	
 			}
-			var delegate = delegate || false;
-			if (!('length' in obj)) {
-    			obj = [obj];
-    		}
-			for (var i = 0, len = obj.length; i < len; i++) {
+			var i = obj.length;
+			while (i--) {
 				if (obj[i].addEventListener) {
 					obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
 				} else if (obj.attachEvent) {
@@ -86,14 +87,13 @@ var AWESOME = (function () {
 			}
 		},
 		unbind: function (obj, type, handler, delegate) {
-			var delegate = delegate || false;
-			if (typeof obj == 'undefined') {
-				return false;
+			if (typeof obj == 'undefined' || obj == null) {return;}
+			delegate = delegate || false;
+			if (typeof obj.length == 'undefined') {
+				obj = [obj];	
 			}
-			if (!('length' in obj)) {
-    			obj = [obj];
-    		}
-			for (var i = 0, len = obj.length; i < len; i++) {
+			var i = obj.length;
+			while (i--) {
 				if (obj[i].removeEventListener) {
 					obj[i].removeEventListener(type, handler, delegate);
 				} else if (obj[i].detachEvent) {
@@ -103,54 +103,70 @@ var AWESOME = (function () {
 				}
 			}
 		},
-		hover: function (obj, over, out, delegate) {
-			var out = out || null;
-			if (typeof obj == 'undefined') {
+		fire: function(obj, event, delegate, cancelable) {
+			var evt;
+			if (document.createEventObject) { // ie
+				evt = document.createEventObject();
+				return obj.fireEvent('on'+ event, evt);
+			}
+			delegate = delegate || false;
+			cancelable = cancelable || true;
+			evt = document.createEvent('HTMLEvents');
+			evt.initEvent(event, delegate, cancelable);
+			return !obj.dispatchEvent(evt);
+		},
+		submit: function(form) {
+			if (typeof form != 'undefined') {
+				form.submit();
 				return false;
 			}
+		},
+		hover: function (obj, over, out, delegate) {
+			if (typeof obj == 'undefined') {return;}
 			var $that = this;
+			out = out || null;
 			$that.bind(obj, 'mouseover', over, delegate);
-			if (out) $that.bind(obj, 'mouseout', out, delegate);
+			if (out) 
+				$that.bind(obj, 'mouseout', out, delegate);
 		},
-		hasClass: function (ele, cls) {
-			return ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+		hasClass: function (el, cls) {
+			var re = el.className.split(' ');  
+			return -1 != re.indexOf(cls);  
 		},
-		addClass: function (ele, cls) {
-			if (!this.hasClass(ele, cls)) ele.className += ' ' + cls;
+		addClass: function (el, cls) {
+			if (!this.hasClass(el, cls)) 
+				el.className += ' ' + cls;
 		},
-		removeClass: function (ele, cls) {
-			if (this.hasClass(ele, cls)) var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-			ele.className = ele.className.replace(reg, ' ');
+		removeClass: function (el, cls) {
+			if (this.hasClass(el, cls)) 
+				var re = el.className.split(' ');
+				re.splice(re.indexOf(cls), 1);
+				var i = re.length;
+				el.className = ''; // empty
+				while(i--) { // reload
+					el.className += re[i] + ' ';
+				}
 		},
 		getId: function (id) {
 			return document.getElementById(id);
 		},
 		getTag: function (tag, context) {
-			var context = context || document,
-				tag = tag || '*',
-				output = context.getElementsByTagName(tag);
-			if (output.length > 1) {
-				return output;
-			} else {
-				return output[0];
-			}
+			context = context || document;
+			tag = tag || '*';
+			return context.getElementsByTagName(tag);
 		},
 		getClass: function (searchClass, context, tag) {
 			var classElements = new Array(),
 				els = this.getTag(tag, context),
 				elsLen = els.length,
 				pattern = new RegExp('(^|\\s)' + searchClass + '(\\s|$)');
-			for (var i = 0, j = 0; i < elsLen; i++) {
+			for (var i = 0, j = 0; i < elsLen; ++i) {
 				if (pattern.test(els[i].className)) {
 					classElements[j] = els[i];
 					j++;
 				}
 			}
-			if (classElements.length > 1) {
-				return classElements;
-			} else {
-				return classElements[0];
-			}
+			return classElements;
 		},
 		toCamelCase: function (string) {
 			var oStringList = string.split('-');
@@ -158,13 +174,14 @@ var AWESOME = (function () {
 
 			var ccstr = string.indexOf('-') == 0 ? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1) : oStringList[0];
 
-			for (var i = 1, len = oStringList.length; i < len; i++) {
+			for (var i = 1, len = oStringList.length; i < len; ++i) {
 				var s = oStringList[i];
 				ccstr += s.charAt(0).toUpperCase() + s.substring(1);
 			}
 			return ccstr;
 		},
 		style: function (el, prop, newVal) {
+			if (el)
 			prop = this.toCamelCase(prop);
 			newVal = newVal || null;
 			if (newVal) {
@@ -200,185 +217,20 @@ var AWESOME = (function () {
 			var D = document;
 			return Math.max(D.body.clientWidth, D.documentElement.clientWidth);
 		},
-		bottomBar: function (ele) {
-			var $that = this;
-			function makeBottom() {
-				var barheight = $that.attr(ele, 'offsetHeight')
-				$that.style(ele, 'bottom', 'auto');
-				$that.style(ele, 'top', (($that.docHeight() - barheight) + 'px'));
-			}
-			makeBottom();
-
-			$that.bind(window, 'resize', function () {
-				makeBottom();
-			});
-		},
-		screenOverlay: function (options) {
-			var defaults = {
-				header: null,
-				headerType: 'h2',
-				data: null,
-				lightboxId: 'lightbox',
-				id: 'screen-overlayer'
-			};
-			if (!options) {
-				var options = defaults;
-			} else {
-				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') 
-						options[index] = defaults[index];
-				}
-			}
-			var $that = this;
-
-			// Make Viewport-sized grey area
-			function makeOverlay(windowWidth, windowHeight, id) {
-				var $body = document.body,
-					overlayer = $that.getId(id),
-					lightbox = $that.getId(options.lightboxId),
-					lightboxClose = $that.getId(options.lightboxId + '-close');
-
-				if (!overlayer && !lightbox) {
-					var overlayDIV = $that.create('div'),
-						lightboxDIV = $that.create('div');
-
-					$that.prepend(overlayDIV, $body);
-					$that.attr(overlayDIV, 'id', id);
-
-					$that.prepend(lightboxDIV, $body);
-					$that.attr(lightboxDIV, 'id', options.lightboxId);
-
-					$that.addClass(document.documentElement, 'has-overlay');
-
-					var overlayer = $that.getId(id),
-						lightbox = $that.getId(options.lightboxId);
-
-					// Output for lightbox
-					var lightboxOutput = '<a href="#' + options.lightboxId + '-close" id="' + options.lightboxId + '-close">Close</a><div id="' + options.lightboxId + '-inner">';
-					if (options.header) {
-						lightboxOutput += '<div class="header"><' + options.headerType + '>' + options.header + '</' + options.headerType + '></div>';
-					}
-					lightboxOutput += '<div class="content">' + options.data + '</div></div>';
-					lightbox.innerHTML = lightboxOutput;
-
-					var lightboxClose = $that.getId(options.lightboxId + '-close');
-				}
-
-				$that.style(overlayer, 'width', windowWidth + 'px');
-				$that.style(overlayer, 'height', windowHeight + 'px');
-
-				function closeOverlay() {
-					$that.removeClass(document.documentElement, 'has-overlay');
-					$that.remove(lightbox);
-					$that.remove(overlayer);
-				}
-
-				$that.bind(overlayer, 'click', function () {
-					closeOverlay();
-				});
-				$that.bind(lightboxClose, 'click', function (e) {
-					$that.cancelEvent(e);
-					closeOverlay();
-				});
-			}
-			makeOverlay($that.docWidth(), $that.docHeight(), options.id);
-
-			$that.bind(window, 'resize', function () {
-				if ($that.hasClass(document.documentElement, 'has-overlay')) 
-					makeOverlay($that.docWidth(), $that.docHeight(), options.id);
-			});
-		},
-		tabs: function (ele, options) {
-			var $that = this,
-				sections = $that.getClass('tab', ele, 'div'),
-				seclen = sections.length,
-				defaults = {
-					open: 1,
-					hist: false
-				};
-				
-			if (!options) {
-				var options = defaults;
-			} else {
-				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') 
-						options[index] = defaults[index];
-				}
-			}
-
-			// If there are multiple sections, close sections, make tabs, open first
-			if (seclen <= 1) return;
-			$that.addClass(ele, 'tab-container');
-			var tabs = '';
-			for (var i = 0; i < seclen; i++) {
-				$that.style(sections[i], 'display', 'none');
-				switch (i) {
-					case 0:
-						tabs += '<li class="first">';
-					break;
-					case (seclen - 1):
-						tabs += '<li class="last">';
-					break;
-					default:
-					tabs += '<li>';
-				}
-				tabs += '<a href="#' + $that.attr(sections[i], 'id') + '" data-id="' + i + '">' + $that.attr(sections[i], 'title') + '</a></li>';
-				tabs += '</li>';
-			}
-			var tabset = $that.create('ul');
-			$that.prepend(tabset, ele);
-			$that.addClass(tabset, 'tab-set clearfix');
-			tabset.innerHTML = tabs;
-			var tabs = $that.getTag('li', tabset);
-			var tabslen = tabs.length;
-
-			// Open appropriate Block
-			for (var j = 0; j < seclen; j++) {
-				$that.bind(tabs[j].childNodes[0], 'click', function(e) {
-					$that.cancelEvent(e);
-
-					for (var k = 0; k < seclen; k++) {
-						$that.removeClass(tabs[k], 'active');
-					}
-					$that.addClass(this.parentNode, 'active');
-					var href = $that.attr(this, 'href').split('#')[1];	
-					for (var l = 0; l < seclen; l++) {
-						$that.style(sections[l], 'display', 'none');
-					}
-					var openMe = $that.getId(href);
-					$that.style(openMe, 'display', 'block');
-					
-				});
-			}
-
-			
-			// Open Default block
-			if (options.open) {
-				for (var i = 0; i < sections.length; i++) {
-					$that.style(sections[i], 'display', 'none');
-				}
-				$that.style(sections[options.open - 1], 'display', 'block');
-
-				for (var j = 0; j < tabs.length; j++) {
-					$that.removeClass(tabs[j], 'active');
-				}
-				$that.addClass(tabs[options.open - 1], 'active');
-
-				options.open = null;
-			}
-		},
 		attr: function (ele, attr, newVal) {
-			var newVal = newVal || null;
+			newVal = newVal || null;
 			if (newVal) {
 				ele.setAttribute(attr, newVal);
 			} else {
 				var attrs = ele.attributes,
-					attrslen = attrs.length,
+					attrsLen = attrs.length,
 					result = ele.getAttribute(attr) || ele[attr] || null;
 
 				if (!result) {
-					for (var i = 0; i < attrslen; i++)
-					if (attr[i].nodeName === attr) result = attr[i].nodeValue;
+					while (attrsLen--) {
+						if (attr[attrsLen].nodeName === attr)
+							result = attr[i].nodeValue;
+					}
 				}
 				return result;
 			}
@@ -387,14 +239,15 @@ var AWESOME = (function () {
 			return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		},
 		text: function (obj, txt) {
-			if (txt) {
-				if (obj.innerText) {
-					obj.innerText = txt;
-				} else {
+			if (typeof obj != 'undefined') {
+				if (txt) {
+					if (obj.innerText != 'undefined') {
+						obj.innerText = txt;
+					}
 					obj.textContent = txt;
+				} else {
+					return obj.innerText || obj.textContent;
 				}
-			} else {
-				return obj.innerText || obj.textContent;
 			}
 		},
 		prepend: function (newNode, node) {
@@ -417,7 +270,7 @@ var AWESOME = (function () {
 			if (!('length' in ele)) {
     			ele = [ele];
     		}
-			for (var i = 0, len = ele.length; i < len; i++) {
+			for (var i = 0, len = ele.length; i < len; ++i) {
 				if (!ele[i].parentNode) {
 					return false;
 				}
@@ -425,12 +278,13 @@ var AWESOME = (function () {
 			}
 		},
 		create: function (tag) {
+			// TODO: add a name attribute try/catch to solve <= ie7 submitName issue
 			return document.createElement(tag);
 		},
 		// Cookies
 		createCookie: function (name, value, days, domain) {
 			var expires = '';
-			var domain = domain || window.location.host;
+			domain = domain || window.location.host;
 			if (days) {
 				var date = new Date();
 				date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -456,228 +310,220 @@ var AWESOME = (function () {
 			}
 			return null;
 		},
-		animate: function (ele, props, time, callback) {
-			var fx = new FX(ele, props, time, callback);
-			fx.start();
+		// Math
+		greatest: function (array) {
+			var m = Math;
+		    return m.max.apply(m, array);
 		},
-		truncate: function (obj, options) {
-			if (obj)
-			if (!('length' in obj)) {
-    			obj = [obj];
-    		}
-			var defaults = {
-				len: 80,
-				elipsis: '... ',
-				moreText: 'Read More &raquo;'
-			};
-			if (!options) {
-				var options = defaults;
+		smallest: function (array) {
+			var m = Math;
+		    return m.min.apply(m, array);
+		},
+		getRandom: function(min, max) {
+			var m = Math;
+			if (min) {
+				return m.floor(m.random() * (max - min + 1)) + min;
 			} else {
-				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') 
-						options[index] = defaults[index];
-				}
-			}
-			
-			for (var i = 0, olen = obj.length; i < olen; i++) {
-				var trunc = obj[i].innerHTML;
-				if (trunc.length > options.len) {
-					trunc = trunc.substring(0, options.len);
-					trunc = trunc.replace(/\w+$/, '');
-					trunc += options.elipsis + '<a href="#" ' +
-					'onclick="this.parentNode.innerHTML=' +
-					'unescape(\''+ escape(obj[i].innerHTML)+'\');return false;">' +
-					options.moreText + '<\/a>';
-					obj[i].innerHTML = trunc;
-				}	
+				return m.round(m.random()); // 1 or 0
 			}
 		},
-		tooltip: function (obj, options) {
-			if (obj)
-			var $that = this;
-			if (!('length' in obj)) {
-    			obj = [obj];
-    		}
-    		var defaults = {
-    			pos: 'top',
-    			cls: 'tooltip'
-			};
-			if (!options) {
-				var options = defaults;
-			} else {
-				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') 
-						options[index] = defaults[index];
-				}
-			}
-    		
-			for (var i = 0, olen = obj.length; i < olen; i++) {
-				if (!$that.hasClass(obj[i], 'has-tip')) {
-				
-					var title = $that.attr(obj[i], 'title'),
-						tip = $that.create('span');
-			
-					obj[i].title = null; // prevent browser tips
-					$that.addClass(obj[i], 'has-tip');
-					$that.style(obj[i], 'position', 'relative');
-					$that.prepend(tip, obj[i]);
-					$that.style(tip, 'display', 'none');
-			
-					switch (options.pos) {
-						case 'left':
-							$that.addClass(tip, options.cls +' tipleft');
-						break;
-						case 'right':
-							$that.addClass(tip, options.cls +' tipright');
-						break;
-						case 'bottom':
-							$that.addClass(tip, options.cls +' tipbottom');
-						break;
-						default: // top
-							$that.addClass(tip, options.cls +' tiptop');
-					}
-					$that.text(tip, title);
-				}
-				// Tip hover
-				$that.hover(obj[i], function() {
-					$that.style(this.childNodes[0], 'display', 'block');
-				}, function() {
-					$that.style(this.childNodes[0], 'display', 'none');    
-				});
-			}
-		},
+		// Ajax
 		getUrlVars: function () {
-			var vars = [],
-				hash;
+			var vars = [];
+			var hash;
 			var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-			for (var i = 0; i < hashes.length; i++) {
+			var hashlen = hashes.length;
+			for (var i = 0; i < hashlen; ++i) {
 				hash = hashes[i].split('=');
 				vars.push(hash[0]);
 				vars[hash[0]] = hash[1];
 			}
 			return vars;
 		},
-		ajax: function (url, callbackFunction) {
-			this.bindFunction = function (caller, object) {
-				return function () {
-					return caller.apply(object, [object]);
-				};
-			};
-			this.stateChange = function (object) {
-				if (this.request.readyState == 4) this.callbackFunction(this.request.responseText);
-			};
-			this.getRequest = function () {
-				if (window.ActiveXObject) return new ActiveXObject('Microsoft.XMLHTTP');
-				else if (window.XMLHttpRequest) return new XMLHttpRequest();
-				return false;
-			};
-			this.postBody = (arguments[2] || '');
-			this.callbackFunction = callbackFunction;
-			this.url = url;
-			this.request = this.getRequest();
-			if (this.request) {
-				var req = this.request;
-				req.onreadystatechange = this.bindFunction(this.stateChange, this);
-				if (this.postBody !== '') {
-					req.open('POST', url, true);
-					req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-					req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-					req.setRequestHeader('Connection', 'close');
-				} else {
-					req.open('GET', url, true);
+		serialize: function (obj) {
+			var viableNodes = ['input', 'select', 'textarea'];
+			var viableNodesLen = viableNodes.length;
+			var rawChildren = [];
+			var formChildren = [];
+			var returnObject = {};
+			var nodeList = [];
+			for (var i = 0; i < viableNodesLen; ++i) {
+				nodeList = obj.getElementsByTagName(viableNodes[i]);
+				var nodeListLen = nodeList.length;
+				for (var j = 0; j < nodeListLen; ++j) {
+					rawChildren.push(nodeList[j]);
 				}
-				req.send(this.postBody);
 			}
+			// build list of viable form elements
+			var rawChildrenLen = rawChildren.length;
+			for (var i=0; i < rawChildrenLen; ++i) {
+				var currentNode = rawChildren[i];
+				switch(rawChildren[i].nodeName.toLowerCase()) {
+					case 'input':
+						switch(currentNode.type) {
+							case 'text':
+								formChildren.push(currentNode);
+							break;
+							case 'hidden':
+								formChildren.push(currentNode);
+							break;
+							case 'password':
+								formChildren.push(currentNode);
+							break;
+							case 'checkbox':
+								if (currentNode.checked) {
+									formChildren.push(currentNode);
+								}
+							break;
+							case 'radio':
+								if (currentNode.checked) {
+									formChildren.push(currentNode);
+								}
+							break;
+						}
+					break;
+					case 'select':
+						formChildren.push(currentNode);
+					break;
+					case 'textarea':
+						formChildren.push(currentNode);
+					break;
+				}
+			}
+			//build object of the name-value pairs
+			var formChildrenLen = formChildren.length;
+			for (var i = 0; i < formChildrenLen; ++i) {
+				var currentNode = formChildren[i];
+				if (!returnObject.hasOwnProperty(currentNode.name)) {
+					returnObject[currentNode.name] = currentNode.value;
+				} else {
+					if (typeof returnObject[currentNode.name] == 'string') {
+						returnObject[currentNode.name] = [returnObject[currentNode.name], currentNode.value.toString()];					
+					} else {
+						returnObject[currentNode.name].push(currentNode.value.toString());
+					}
+				}
+			}
+			return returnObject;
 		},
-		textLimit: function(obj, options) {
-			if (obj)
-			if (!('length' in obj)) {
-    			obj = [obj];
-    		}
+		formatParams: function (obj) {
+			if (obj == null) {return '';}
+			var q = [];
+			for (p in obj) {
+				if (obj.hasOwnProperty(p)) {
+					q.push( encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]) );
+				}
+			}
+			return q.join("&");
+		},
+		ajax: function(options) {
 			var defaults = {
-    			maximum: 200,
-    			warningCount: 10,
-    			warningClass: 'limit-warning',
-    			pos: 'after',
-    			countClass: 'limit-count',
-    			countPrefix: null,
-    			countSuffix: ' Characters Remaining'
+				url:          null,
+				data:         null, // key:val
+				type:         'post',
+				dataType:     null,
+				disguise:     false,
+				beforeSend:   function() {},
+				sendPrepared: function() {},
+				afterSend:    function() {},
+				preComplete:  function() {},
+				complete:     function() {},
+				failure:      function() {}
 			};
-			var $that = this;
 			if (!options) {
-				var options = defaults;
+				options = defaults;
 			} else {
 				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') 
+					if (typeof options[index] == 'undefined') {
 						options[index] = defaults[index];
+					}
 				}
 			}
-			
+			if (options.url == null) {return;}
+			var $that = this;
 			// init
-			for (var i = 0, olen = obj.length; i < olen; i++) {
-				var counter = $that.create('span');
-				var initCount = obj[i].value.length;
-				var tempCount = options.maximum;
-				var lenAttr = $that.attr(obj[i], 'length');
-				
-				if (lenAttr && lenAttr <= options.maximum) {
-					tempCount = $that.attr(obj[i], 'length');
-				}
-				
-				if (options.pos == 'after') {
-					$that.after(counter, obj[i]);
-				} else {					
-					$that.before(counter, obj[i]);
-				}
-				$that.addClass(counter, options.countClass);
-				$that.text(counter, options.countPrefix + (tempCount - initCount) + options.countSuffix);
+			switch (options.type.toUpperCase()) {
+				case 'GET':
+					get(options.url, options.data);
+				break;
+				case 'POST':
+					post(options.url, options.data);
+				break;
+			}
 			
-				$that.bind(obj[i], 'keyup', function() {
-					var input = this;
-					var inputlen = input.value.length;
-					tempCount = options.maximum; // reset just in case
-					var lenAttr = $that.attr(input, 'length');					
-					if (lenAttr && lenAttr <= options.maximum) {
-						tempCount = lenAttr;
+			//private
+			function open(method, url) {
+				var req = getRequest();
+				if (req == null) {return;}
+				var d = new Date();
+				
+				req.open(method, url, true);
+				
+				if (method == 'POST') {
+					req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				}
+				if (!options.disguise) {
+					req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+				}
+				req.setRequestHeader("X-Request-Id", d.getTime());
+				
+				req.onreadystatechange = function(e) {
+					switch (req.readyState) {
+						case 0:
+							options.beforeSend();
+						break
+						case 1:
+							options.sendPrepared();
+						break;
+						case 2:
+							options.afterSend();
+						break;
+						case 3:
+							options.preComplete(req);
+						break;
+						case 4:
+							if (req.status >= 200 && req.status < 300) {
+								options.complete(req);	
+							} else if (req.status == 0) { // file:/// ajax
+								options.complete(req);
+							} else {
+								options.failure(req);
+							}
+						break;
 					}
-					
-					// Update Text
-					if (inputlen > tempCount) {
-						input.value = input.value.substr(0, tempCount);
-					} else {
-						if (options.pos == 'after') {
-							$that.text(input.nextSibling, options.countPrefix + (tempCount - inputlen) + options.countSuffix);
-						} else {
-							$that.text(input.previousSibling, options.countPrefix + (tempCount - inputlen) + options.countSuffix);
-						}
-					}
-					
-					// Warning Level
-					if (tempCount - inputlen < options.warningCount) {
-						if (options.pos == 'after') {
-							$that.addClass(input.nextSibling, options.warningClass);	
-						} else {
-							$that.addClass(input.previousSibling, options.warningClass);					
-						}
-					} else {
-						if (options.pos == 'after') {
-							$that.removeClass(input.nextSibling, options.warningClass);
-						} else {
-							$that.removeClass(input.previousSibling, options.warningClass);
-						}
-					}
-					// TODO: simplify above, add option for negative value instead of truncate show negative value method
-				});
+				};
+				return req;
+			}
+			
+			function get(url, data) {
+				var req = open('GET', url + $that.formatParams(options.data));
+				req.send('');
+				return req;
+			}
+			
+			function post(url, data) {
+				var req = open('POST', url);
+				req.send($that.formatParams(options.data));
+				return req;
+			}
+		
+			function getRequest() {
+				if (typeof(XMLHttpRequest) != 'undefined')
+					return new XMLHttpRequest();
+				try {
+					return new ActiveXObject('Msxml2.XMLHTTP.6.0');
+				} catch(e) { }
+				try {
+					return new ActiveXObject('Msxml2.XMLHTTP.3.0');
+				} catch(e) { }
+				try {
+					return new ActiveXObject('Msxml2.XMLHTTP');
+				} catch(e) { }
+				try {
+					return new ActiveXObject('Microsoft.XMLHTTP');
+				} catch(e) { }
+				return null;
 			}
 		}
-		// getRemote: function(url, remoteSelector, localSelector) {
-		//	 var localSelector = localSelector || this.getTag('body');
-		//	 var remoteSelector = remoteSelector || '';
-		//	 var get  = '/php/getremote.php?url='+ url;
-		//		 get += '&sel='+ remoteSelector;
-		//	 this.ajax(get, function(res) {
-		//	   localSelector.innerHTML = res;
-		//	 });
-		// }
 	};
-})();
+}());
