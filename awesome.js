@@ -123,11 +123,11 @@ var AWESOME = (function () {
 		},
 		hover: function (obj, over, out, delegate) {
 			if (typeof obj == 'undefined') {return;}
-			var $that = this;
+			var $this = this;
 			out = out || null;
-			$that.bind(obj, 'mouseover', over, delegate);
+			$this.bind(obj, 'mouseover', over, delegate);
 			if (out) 
-				$that.bind(obj, 'mouseout', out, delegate);
+				$this.bind(obj, 'mouseout', out, delegate);
 		},
 		hasClass: function (el, cls) {
 			var re = el.className.split(' ');  
@@ -416,8 +416,20 @@ var AWESOME = (function () {
 			}
 			return q.join("&");
 		},
+		setDefaults: function(defaults, options) {
+			if (!options) {
+				options = defaults;
+			} else {
+				for (var index in defaults) {
+					if (typeof options[index] == 'undefined') {
+						options[index] = defaults[index];
+					}
+				}
+			}
+			return options;
+		},
 		ajax: function(options) {
-			var defaults = {
+			options = this.setDefaults({
 				url:          null,
 				data:         null, // key:val
 				type:         'post',
@@ -429,18 +441,9 @@ var AWESOME = (function () {
 				preComplete:  function() {},
 				complete:     function() {},
 				failure:      function() {}
-			};
-			if (!options) {
-				options = defaults;
-			} else {
-				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') {
-						options[index] = defaults[index];
-					}
-				}
-			}
-			if (options.url == null) {return;}
-			var $that = this;
+			}, options);
+			var $this = this;
+
 			// init
 			switch (options.type.toUpperCase()) {
 				case 'GET':
@@ -496,14 +499,14 @@ var AWESOME = (function () {
 			}
 			
 			function get(url, data) {
-				var req = open('GET', url + $that.formatParams(options.data));
+				var req = open('GET', url + $this.formatParams(options.data));
 				req.send('');
 				return req;
 			}
 			
 			function post(url, data) {
 				var req = open('POST', url);
-				req.send($that.formatParams(options.data));
+				req.send($this.formatParams(options.data));
 				return req;
 			}
 		
