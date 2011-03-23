@@ -250,6 +250,9 @@ var AWESOME = (function () {
 				}
 			}
 		},
+		trim: function (str) {
+			return str.replace(/^\s+|\s+$/g);
+		},
 		prepend: function (newNode, node) {
 			node.insertBefore(newNode, node.childNodes[0]);
 		},
