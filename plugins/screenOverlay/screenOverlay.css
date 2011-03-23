@@ -1,0 +1,77 @@
+#screen-overlayer {
+	background-color: rgba(85, 85, 85, 0.7);
+	display: block;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 9998;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#55555570',EndColorStr='#55555570');
+}
+#lightbox {
+	background-color: #fff;
+	border: 5px solid #eee;
+	left: 50%;
+	height: 400px;
+	position: fixed;
+	_position: absolute;
+	text-align: center;
+	top: 0;
+	width: 500px;
+	margin-top: 40px;
+	margin-left: -250px;
+	z-index: 9999;
+	box-shadow: 3px 0 20px rgba(0, 0, 0, 0.7);
+	-moz-box-shadow: 3px 0 20px rgba(0, 0, 0, 0.7);
+	-webkit-box-shadow: 3px 0 20px rgba(0, 0, 0, 0.7);
+}
+#lightbox #lightbox-inner {
+	text-align: left;
+}
+#lightbox .header {
+	background-color: #FFFFFF;
+	border-bottom: 5px solid #fff;
+	color: #fff;
+	padding: 20px 10px;
+	background-color: #111;
+	overflow: hidden;
+}
+#lightbox .header h2 {
+	font-size: 1.5em;
+}
+#lightbox .content {
+	padding: 20px;
+	height: 320px;
+	overflow: auto;
+}
+#lightbox .content img {
+	display: block;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #cccccc;
+	padding: 3px;
+	margin: 0 auto;
+	text-align: center;
+	width: 100%;
+}
+#lightbox a {
+	background-color: #ddd;
+	border: 1px solid #ccc;
+	cursor: pointer;
+	height: px;
+	width: 45px;
+	line-height: 45px;
+	top: -22.5px;
+	right: -22.5px;
+	position: absolute;
+	-khtml-border-radius: 20px;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	border-radius: 20px;
+}
+#lightbox a:hover {
+	background-color: #eee;
+}
+#lightbox a:active {
+	background-color: #ccc;
+}
