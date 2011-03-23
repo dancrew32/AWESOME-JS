@@ -156,7 +156,7 @@ var AWESOME = (function () {
 			return context.getElementsByTagName(tag);
 		},
 		getClass: function (searchClass, context, tag) {
-			var classElements = new Array(),
+			var classElements = [],
 				els = this.getTag(tag, context),
 				elsLen = els.length,
 				pattern = new RegExp('(^|\\s)' + searchClass + '(\\s|$)');
