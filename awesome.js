@@ -455,7 +455,7 @@ var AWESOME = (function () {
 				case 'POST':
 					post(options.url, options.data);
 				break;
-				case: 'JSONP':
+				case 'JSONP':
 					getJSONP(options.url, options.requestId);
 				break;
 			}
