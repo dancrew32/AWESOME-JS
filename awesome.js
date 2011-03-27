@@ -517,11 +517,11 @@ var AWESOME = (function () {
 			}
 
 			function getJSONP(url, id) {
-				var script = $.create('script');	
+				var script = $this.create('script');	
 				script.type = 'text/javascript';
 				script.src = url;
 				script.id = id || 'awesome-jsonp'; // id to remove 
-				$this.append(script, $.getTag('head')[0]);
+				$this.append(script, $this.getTag('head')[0]);
 			}
 		
 			function getRequest() {
