@@ -436,8 +436,8 @@ var AWESOME = (function () {
 				url:          null,
 				data:         null, // key:val
 				type:         'post',
-				dataType:     null,
 				disguise:     false,
+				requestId:    null,
 				beforeSend:   function() {},
 				sendPrepared: function() {},
 				afterSend:    function() {},
@@ -454,6 +454,9 @@ var AWESOME = (function () {
 				break;
 				case 'POST':
 					post(options.url, options.data);
+				break;
+				case: 'JSONP':
+					getJSONP(options.url, options.requestId);
 				break;
 			}
 			
@@ -511,6 +514,14 @@ var AWESOME = (function () {
 				var req = open('POST', url);
 				req.send($this.formatParams(options.data));
 				return req;
+			}
+
+			function getJSONP(url, id) {
+				var script = $.create('script');	
+				script.type = 'text/javascript';
+				script.src = url;
+				script.id = id || 'awesome-jsonp'; // id to remove 
+				$this.append(script, $.getTag('head')[0]);
 			}
 		
 			function getRequest() {
