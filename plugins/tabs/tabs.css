@@ -1,0 +1,27 @@
+.tabs {
+	display:block;
+	zoom:1;
+}
+.tabs:after {
+	visibility:hidden;
+	display:block;
+	font-size:0;
+	content: " ";
+	clear:both;
+	height:0;
+}
+.tabs li {
+	display:inline;
+	float:left;
+	list-style:none;
+}
+.tabs a {
+	border:1px solid #ccc;
+	display:block;
+	float:left;
+	padding:3px 5px;
+}
+
+.tab {
+	border:1px solid #ccc;
+}

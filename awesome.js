@@ -314,11 +314,11 @@ var AWESOME = (function () {
 			return null;
 		},
 		// Math
-		greatest: function (array) {
+		getMax: function (array) {
 			var m = Math;
 		    return m.max.apply(m, array);
 		},
-		smallest: function (array) {
+		getMin: function (array) {
 			var m = Math;
 		    return m.min.apply(m, array);
 		},
