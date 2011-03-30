@@ -131,7 +131,8 @@ var AWESOME = (function () {
 		},
 		hasClass: function (el, cls) {
 			var re = el.className.split(' ');  
-			return -1 != re.indexOf(cls);  
+			if (typeof re == 'undefined') { return false; }
+			return -1 != re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) 
@@ -140,6 +141,7 @@ var AWESOME = (function () {
 		removeClass: function (el, cls) {
 			if (this.hasClass(el, cls)) 
 				var re = el.className.split(' ');
+				if (typeof re == 'undefined') { return;	}
 				re.splice(re.indexOf(cls), 1);
 				var i = re.length;
 				el.className = ''; // empty
