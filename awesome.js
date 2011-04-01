@@ -334,7 +334,7 @@ var AWESOME = (function () {
 		},
 		sort: function(options) {
 			options = this.setDefaults({
-				array: [],
+				arr: [],
 				type: 'alphabetical',
 				order: 'desc',
 				property: null,
@@ -349,36 +349,30 @@ var AWESOME = (function () {
 						var A = a.toLowerCase();
 						var B = b.toLowerCase();
 						if (options.order == 'asc') {
-							if (A < B) {
-								return -1;
-							} else if (A > B) {
-								return  1;
-							} else {
-								return 0;
-							}
+							if (A < B) { return -1; }
+							else if (A > B) { return  1; }
+							else { return 0; }
 						} else {
-							if (A > B) {
-								return -1;
-							} else if (A < B) {
-								return  1;
-							} else {
-								return 0;
-							}
+							if (A > B) { return -1; }
+							else if (A < B) { return  1; }
+							else { return 0; }
 						}
 					};
 				break;
 				case 'numerical':
-					var asc = function(a, b) { return a - b; };
-					var desc = function(a, b) { return b - a; };
-					method = options.order == 'asc' ? asc() : desc();
+					if (options.order == 'asc') {
+						method = function(a, b) { return a - b; };
+					} else {
+						method = function(a, b) { return b - a; };	
+					}
 				break;
 				case 'random':
 					method = function() {
-						$this.getRandom() - 0.5;
+						return Math.round(Math.random()) - 0.5;
 					};
 				break;
 			}
-			return array.sort(method);
+			return options.arr.sort(method);
 		},
 		// Ajax
 		getUrlVars: function () {
