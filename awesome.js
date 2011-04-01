@@ -130,7 +130,17 @@ var AWESOME = (function () {
 				$this.bind(obj, 'mouseout', out, delegate);
 		},
 		hasClass: function (el, cls) {
-			var re = el.className.split(' ');  
+			var re = el.className.split(" ");
+			if (!Array.indexOf) {
+				Array.prototype.indexOf = function(obj) {
+					for(var i = 0; i < this.length; i++) {
+						if (this[i] == obj){
+							return i;
+						}
+					}
+					return -1;
+				}
+			}
 			if (typeof re == 'undefined') { return false; }
 			return -1 != re.indexOf(cls);
 		},
