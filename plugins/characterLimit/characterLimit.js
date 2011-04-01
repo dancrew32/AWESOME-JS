@@ -47,11 +47,11 @@ $.characterLimit = (function (options) {
 		num.innerHTML = initCount;
 		if (hasPrefix) {
 			var prefix = $.getClass('prefix', counter, 'span')[0];
-			prefix.innerHTML = initCount == 1 ? options.prefixSingular : options.prefixPlural;
+			prefix.innerHTML = $.plural(initCount, options.prefixSingular, options.prefixPlural);
 		}
 		if (hasSuffix) {
 			var suffix = $.getClass('suffix', counter, 'span')[0];
-			suffix.innerHTML = initCount == 1 ? options.suffixSingular : options.suffixPlural;
+			suffix.innerHTML = $.plural(initCount, options.suffixSingular, options.suffixPlural);
 		}
 
 		$.bind(obj, 'keyup', function(e) {
@@ -62,10 +62,10 @@ $.characterLimit = (function (options) {
 			num.innerHTML = count;
 			addLabels(counter, count);
 			if (hasPrefix) {
-				prefix.innerHTML = count == 1 ? options.prefixSingular : options.prefixPlural;
+				prefix.innerHTML = $.plural(count, options.prefixSingular, options.prefixPlural);
 			}
 			if (hasSuffix) {
-				suffix.innerHTML = count == 1 ? options.suffixSingular : options.suffixPlural;
+				suffix.innerHTML = $.plural(count, options.suffixSingular, options.suffixPlural);
 			}
 		});
 	}

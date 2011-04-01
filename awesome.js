@@ -252,6 +252,9 @@ var AWESOME = (function () {
 				}
 			}
 		},
+		plural: function(count, singular, plural) {
+			return count == 1 ? singular : plural;	
+		},
 		trim: function (str) {
 			return str.replace(/^\s+|\s+$/g);
 		},
