@@ -332,6 +332,54 @@ var AWESOME = (function () {
 				return m.round(m.random()); // 1 or 0
 			}
 		},
+		sort: function(options) {
+			options = this.setDefaults({
+				array: [],
+				type: 'alphabetical',
+				order: 'desc',
+				property: null,
+				method: null
+			}, options);
+
+			var $this = this;
+			var method;
+			switch(options.type) {
+				case 'alphabetical':
+					method = function(a, b) {
+						var A = a.toLowerCase();
+						var B = b.toLowerCase();
+						if (options.order == 'asc') {
+							if (A < B) {
+								return -1;
+							} else if (A > B) {
+								return  1;
+							} else {
+								return 0;
+							}
+						} else {
+							if (A > B) {
+								return -1;
+							} else if (A < B) {
+								return  1;
+							} else {
+								return 0;
+							}
+						}
+					};
+				break;
+				case 'numerical':
+					var asc = function(a, b) { return a - b; };
+					var desc = function(a, b) { return b - a; };
+					method = options.order == 'asc' ? asc() : desc();
+				break;
+				case 'random':
+					method = function() {
+						$this.getRandom() - 0.5;
+					};
+				break;
+			}
+			return array.sort(method);
+		},
 		// Ajax
 		getUrlVars: function () {
 			var vars = [];
