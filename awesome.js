@@ -168,10 +168,10 @@ var AWESOME = (function () {
 			return context.getElementsByTagName(tag);
 		},
 		getClass: function (searchClass, context, tag) {
-			var classElements = [],
-				els = this.getTag(tag, context),
-				elsLen = els.length,
-				pattern = new RegExp('(^|\\s)' + searchClass + '(\\s|$)');
+			var classElements = [];
+			var els = this.getTag(tag, context);
+			var elsLen = els.length;
+			var pattern = /('(^|\\s)' + searchClass + '(\\s|$)')/;
 			for (var i = 0, j = 0; i < elsLen; ++i) {
 				if (pattern.test(els[i].className)) {
 					classElements[j] = els[i];
