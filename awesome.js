@@ -103,16 +103,16 @@ var AWESOME = (function () {
 				}
 			}
 		},
-		fire: function(obj, event, delegate, cancelable) {
+		fire: function(obj, ev, delegate, cancelable) {
 			var evt;
 			if (document.createEventObject) { // ie
 				evt = document.createEventObject();
-				return obj.fireEvent('on'+ event, evt);
+				return obj.fireEvent('on'+ ev, evt);
 			}
 			delegate = delegate || false;
 			cancelable = cancelable || true;
 			evt = document.createEvent('HTMLEvents');
-			evt.initEvent(event, delegate, cancelable);
+			evt.initEvent(ev, delegate, cancelable);
 			return !obj.dispatchEvent(evt);
 		},
 		submit: function(form) {
