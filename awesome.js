@@ -5,10 +5,10 @@ var AWESOME = (function () {
 			var ready, timer,
 				onStateChange = function (e) {
 				// Mozilla & Opera
-				if (e && e.type == 'DOMContentLoaded') {
+				if (e && e.type === 'DOMContentLoaded') {
 					fireDOMReady();
 					// Legacy
-				} else if (e && e.type == 'load') {
+				} else if (e && e.type === 'load') {
 					fireDOMReady();
 					// Safari & IE
 				} else if (document.readyState) {
@@ -116,7 +116,7 @@ var AWESOME = (function () {
 			return !obj.dispatchEvent(evt);
 		},
 		submit: function(form) {
-			if (typeof form != 'undefined') {
+			if (typeof form !== 'undefined') {
 				form.submit();
 				return false;
 			}
@@ -142,7 +142,7 @@ var AWESOME = (function () {
 				}
 			}
 			if (typeof re == 'undefined') { return false; }
-			return -1 != re.indexOf(cls);
+			return -1 !== re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) 
@@ -251,9 +251,9 @@ var AWESOME = (function () {
 			return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		},
 		text: function (obj, txt) {
-			if (typeof obj != 'undefined') {
+			if (typeof obj !== 'undefined') {
 				if (txt) {
-					if (obj.innerText != 'undefined') {
+					if (obj.innerText !== 'undefined') {
 						obj.innerText = txt;
 					}
 					obj.textContent = txt;
@@ -263,7 +263,7 @@ var AWESOME = (function () {
 			}
 		},
 		plural: function(count, singular, plural) {
-			return count == 1 ? singular : plural;	
+			return count === 1 ? singular : plural;	
 		},
 		trim: function (str) {
 			return str.replace(/^\s+|\s+$/g);
@@ -317,10 +317,10 @@ var AWESOME = (function () {
 		readCookie: function (c_name) {
 			if (document.cookie.length > 0) {
 				var c_start = document.cookie.indexOf(c_name + "=");
-				if (c_start != -1) {
+				if (c_start !== -1) {
 					c_start = c_start + c_name.length + 1;
 					var c_end = document.cookie.indexOf(";", c_start);
-					if (c_end == -1) {
+					if (c_end === -1) {
 						c_end = document.cookie.length;
 					}
 					return unescape(document.cookie.substring(c_start, c_end));
@@ -361,7 +361,7 @@ var AWESOME = (function () {
 					method = function(a, b) {
 						var A = a.toLowerCase();
 						var B = b.toLowerCase();
-						if (options.order == 'asc') {
+						if (options.order === 'asc') {
 							if (A < B) { return -1; }
 							else if (A > B) { return  1; }
 							else { return 0; }
@@ -373,7 +373,7 @@ var AWESOME = (function () {
 					};
 				break;
 				case 'numerical':
-					if (options.order == 'asc') {
+					if (options.order === 'asc') {
 						method = function(a, b) { return a - b; };
 					} else {
 						method = function(a, b) { return b - a; };	
@@ -457,7 +457,7 @@ var AWESOME = (function () {
 				if (!returnObject.hasOwnProperty(currentNode.name)) {
 					returnObject[currentNode.name] = currentNode.value;
 				} else {
-					if (typeof returnObject[currentNode.name] == 'string') {
+					if (typeof returnObject[currentNode.name] === 'string') {
 						returnObject[currentNode.name] = [returnObject[currentNode.name], currentNode.value.toString()];					
 					} else {
 						returnObject[currentNode.name].push(currentNode.value.toString());
@@ -467,7 +467,7 @@ var AWESOME = (function () {
 			return returnObject;
 		},
 		formatParams: function (obj) {
-			if (obj == null) {return '';}
+			if (obj === null) {return '';}
 			var q = [];
 			for (p in obj) {
 				if (obj.hasOwnProperty(p)) {
@@ -481,7 +481,7 @@ var AWESOME = (function () {
 				options = defaults;
 			} else {
 				for (var index in defaults) {
-					if (typeof options[index] == 'undefined') {
+					if (typeof options[index] === 'undefined') {
 						options[index] = defaults[index];
 					}
 				}
@@ -520,12 +520,12 @@ var AWESOME = (function () {
 			//private
 			function open(method, url) {
 				var req = getRequest();
-				if (req == null) {return;}
+				if (req === null) {return;}
 				var d = new Date();
 				
 				req.open(method, url, true);
 				
-				if (method == 'POST') {
+				if (method === 'POST') {
 					req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				}
 				if (!options.disguise) {
@@ -550,7 +550,7 @@ var AWESOME = (function () {
 						case 4:
 							if (req.status >= 200 && req.status < 300) {
 								options.complete(req);	
-							} else if (req.status == 0) { // file:/// ajax
+							} else if (req.status === 0) { // file:/// ajax
 								options.complete(req);
 							} else {
 								options.failure(req);
@@ -582,7 +582,7 @@ var AWESOME = (function () {
 			}
 		
 			function getRequest() {
-				if (typeof(XMLHttpRequest) != 'undefined')
+				if (typeof(XMLHttpRequest) !== 'undefined')
 					return new XMLHttpRequest();
 				try {
 					return new ActiveXObject('Msxml2.XMLHTTP.6.0');
