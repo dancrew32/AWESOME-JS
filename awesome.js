@@ -70,9 +70,9 @@ var AWESOME = (function () {
 			}
 		},
 		bind: function (obj, type, handler, delegate) {
-			if (typeof obj == 'undefined' || obj == null) {return;}
+			if (typeof obj === 'undefined' || obj === null) {return;}
 			delegate = delegate || false;
-			if (typeof obj.length == 'undefined') {
+			if (typeof obj.length === 'undefined') {
 				obj = [obj];	
 			}
 			var i = obj.length;
@@ -87,9 +87,9 @@ var AWESOME = (function () {
 			}
 		},
 		unbind: function (obj, type, handler, delegate) {
-			if (typeof obj == 'undefined' || obj == null) {return;}
+			if (typeof obj === 'undefined' || obj === null) {return;}
 			delegate = delegate || false;
-			if (typeof obj.length == 'undefined') {
+			if (typeof obj.length === 'undefined') {
 				obj = [obj];	
 			}
 			var i = obj.length;
@@ -122,7 +122,7 @@ var AWESOME = (function () {
 			}
 		},
 		hover: function (obj, over, out, delegate) {
-			if (typeof obj == 'undefined') {return;}
+			if (typeof obj === 'undefined') {return;}
 			var $this = this;
 			out = out || null;
 			$this.bind(obj, 'mouseover', over, delegate);
@@ -134,14 +134,14 @@ var AWESOME = (function () {
 			if (!Array.indexOf) {
 				Array.prototype.indexOf = function(obj) {
 					for(var i = 0; i < this.length; i++) {
-						if (this[i] == obj){
+						if (this[i] === obj){
 							return i;
 						}
 					}
 					return -1;
 				}
 			}
-			if (typeof re == 'undefined') { return false; }
+			if (typeof re === 'undefined') { return false; }
 			return -1 !== re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
@@ -151,7 +151,7 @@ var AWESOME = (function () {
 		removeClass: function (el, cls) {
 			if (this.hasClass(el, cls)) 
 				var re = el.className.split(' ');
-				if (typeof re == 'undefined') { return;	}
+				if (typeof re === 'undefined') { return;	}
 				re.splice(re.indexOf(cls), 1);
 				var i = re.length;
 				el.className = ''; // empty
@@ -182,9 +182,9 @@ var AWESOME = (function () {
 		},
 		toCamelCase: function (string) {
 			var oStringList = string.split('-');
-			if (oStringList.length == 1) return oStringList[0];
+			if (oStringList.length === 1) return oStringList[0];
 
-			var ccstr = string.indexOf('-') == 0 ? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1) : oStringList[0];
+			var ccstr = string.indexOf('-') === 0 ? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1) : oStringList[0];
 
 			for (var i = 1, len = oStringList.length; i < len; ++i) {
 				var s = oStringList[i];
@@ -197,7 +197,7 @@ var AWESOME = (function () {
 			prop = this.toCamelCase(prop);
 			newVal = newVal || null;
 			if (newVal) {
-				if (prop == 'opacity') {
+				if (prop === 'opacity') {
 					el.style.filter = "alpha(opacity=" + newVal * 100 + ")";
 					el.style.opacity = newVal;
 				} else {
@@ -209,7 +209,7 @@ var AWESOME = (function () {
 				if (view && view.getComputedStyle) {
 					return view.getComputedStyle(el, '')[prop] || null;
 				} else {
-					if (prop == 'opacity') {
+					if (prop === 'opacity') {
 						var opacity = el.filters('alpha').opacity;
 						return isNaN(opacity) ? 1 : (opacity ? opacity / 100 : 0);
 					}
