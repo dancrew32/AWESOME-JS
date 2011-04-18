@@ -115,12 +115,6 @@ var AWESOME = (function () {
 			evt.initEvent(ev, delegate, cancelable);
 			return !obj.dispatchEvent(evt);
 		},
-		submit: function(form) {
-			if (typeof form !== 'undefined') {
-				form.submit();
-				return false;
-			}
-		},
 		hover: function (obj, over, out, delegate) {
 			if (typeof obj === 'undefined') {return;}
 			var $this = this;
@@ -288,11 +282,11 @@ var AWESOME = (function () {
 			if (!('length' in ele)) {
     			ele = [ele];
     		}
-			for (var i = 0, len = ele.length; i < len; ++i) {
-				if (!ele[i].parentNode) {
-					return false;
+			var i = ele.length;
+			while (i--) {
+				if (typeof ele[i].parentNode !== 'undefined') {
+					ele[i].parentNode.removeChild(ele[i]);
 				}
-				ele[i].parentNode.removeChild(ele[i]);
 			}
 		},
 		create: function (tag) {
@@ -400,7 +394,7 @@ var AWESOME = (function () {
 			}
 			return vars;
 		},
-		serialize: function (obj) {
+		serialize: function(obj) {
 			var viableNodes = ['input', 'select', 'textarea'];
 			var viableNodesLen = viableNodes.length;
 			var rawChildren = [];
