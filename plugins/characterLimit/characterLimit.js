@@ -23,7 +23,7 @@ $.characterLimit = (function (options) {
 	while(i--) {
 		var obj = options.obj[i];
 
-		var counter = $.create('div');
+		var counter = $.create('DIV');
 		counter.className = 'counter';
 		var hasPrefix = false;
 		var hasSuffix = false;

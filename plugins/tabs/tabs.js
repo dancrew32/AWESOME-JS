@@ -22,7 +22,7 @@ $.tabs = (function (options) {
 			var pane = panes[panesLen];
 			tabHtml += '<li id="tab-'+ pane.id +'"><a href="#">'+ $.attr(pane, "title") +'</a></li>';
 		}
-		var tabContainer = $.create('ul');
+		var tabContainer = $.create('UL');
 		tabContainer.innerHTML = tabHtml;
 		$.addClass(tabContainer, options.containerClass);
 		$.prepend(tabContainer, obj);

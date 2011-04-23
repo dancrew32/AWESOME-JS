@@ -22,8 +22,8 @@ $.screenOverlay = (function (options) {
 			lightboxClose = $this.getId(options.lightboxId + '-close');
 			
 		if (!overlayer && !lightbox) {
-			var overlayDIV = $this.create('div'),
-				lightboxDIV = $this.create('div');
+			var overlayDIV = $this.create('DIV'),
+				lightboxDIV = $this.create('DIV');
 
 			$this.prepend(overlayDIV, $body);
 			$this.attr(overlayDIV, 'id', id);
