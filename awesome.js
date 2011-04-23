@@ -165,7 +165,7 @@ var AWESOME = (function () {
 			var classElements = [];
 			var els = this.getTag(tag, context);
 			var elsLen = els.length;
-			var pattern = /('(^|\\s)' + searchClass + '(\\s|$)')/;
+			var pattern = new RegExp('(^|\\s)' + searchClass + '(\\s|$)');
 			for (var i = 0, j = 0; i < elsLen; ++i) {
 				if (pattern.test(els[i].className)) {
 					classElements[j] = els[i];

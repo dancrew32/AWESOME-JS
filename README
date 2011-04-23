@@ -1,4 +1,5 @@
 Get to docready faster and get stuff done with awesome.js. 
 
-Uncompressed: 12.16KB (3.83KB gzipped)
-Minified Size: ~7.39KB (~2.72KB gzipped)
+Closure Compiler Stats:
+Original Size:	16.08KB (5.16KB gzipped)
+Compiled Size:	9.47KB (3.63KB gzipped)
