@@ -187,27 +187,31 @@ var AWESOME = (function () {
 			return ccstr;
 		},
 		style: function (el, prop, newVal) {
-			if (el)
-			prop = this.toCamelCase(prop);
-			newVal = newVal || null;
-			if (newVal) {
-				if (prop === 'opacity') {
-					el.style.filter = "alpha(opacity=" + newVal * 100 + ")";
-					el.style.opacity = newVal;
-				} else {
-					prop = this.toCamelCase(prop);
-					el.style[prop] = newVal;
-				}
+			if (typeof el !== 'undefined')
+			if (typeof prop === 'undefined') {
+				return el.currentStyle || getComputedStyle(el, null);	
 			} else {
-				var view = document.defaultView;
-				if (view && view.getComputedStyle) {
-					return view.getComputedStyle(el, '')[prop] || null;
-				} else {
+				prop = this.toCamelCase(prop);
+				newVal = newVal || null;
+				if (newVal) {
 					if (prop === 'opacity') {
-						var opacity = el.filters('alpha').opacity;
-						return isNaN(opacity) ? 1 : (opacity ? opacity / 100 : 0);
+						el.style.filter = "alpha(opacity=" + newVal * 100 + ")";
+						el.style.opacity = newVal;
+					} else {
+						prop = this.toCamelCase(prop);
+						el.style[prop] = newVal;
 					}
-					return el.currentStyle[prop] || null;
+				} else {
+					var view = document.defaultView;
+					if (view && view.getComputedStyle) {
+						return view.getComputedStyle(el, '')[prop] || null;
+					} else {
+						if (prop === 'opacity') {
+							var opacity = el.filters('alpha').opacity; 
+							return isNaN(opacity) ? 1 : (opacity ? opacity / 100 : 0);
+						}
+						return el.currentStyle[prop] || null;
+					}
 				}
 			}
 		},
@@ -380,6 +384,46 @@ var AWESOME = (function () {
 				break;
 			}
 			return options.arr.sort(method);
+		},
+		animate: function (el, options) {
+			var $this = this;
+			options = this.setDefaults({
+				property: 'width',
+				from: $this.style(el, options.property),
+				to: '0px',
+				duration: 200,
+				easing: function(pos) {
+					return (-Math.cos(pos * Math.PI) / 2) + 0.5; 
+				}
+			}, options);
+
+			var fromNum = parseFloat(options.from);
+			var fromUnit = getUnit(options.from);
+
+			var toNum = parseFloat(options.to);
+			var toUnit = getUnit(options.to) || fromUnit;
+
+			var interval;
+			var start = +new Date;
+			var finish = start + options.duration;
+
+			function interpolate(source, target, pos) {
+				return (source + (target - source) * pos).toFixed(3);	
+			}
+			
+			function getUnit(prop){
+				return prop.replace(/^[\-\d\.]+/,'') || '';
+			}
+
+			interval = setInterval(function() {
+				var time = +new Date;
+				var pos = time > finish ? 1 : (time-start) / options.duration;
+				$this.log(options.property);
+				$this.style(el, options.property, interpolate(fromNum, toNum, options.easing(pos)) + toUnit); // wrap pos in easing formula
+				if (time > finish) {
+					clearInterval(interval);
+				}
+			}, 10);
 		},
 		// Ajax
 		getUrlVars: function () {
