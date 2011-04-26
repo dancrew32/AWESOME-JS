@@ -1,5 +1,11 @@
-Get to docready faster and get stuff done with awesome.js. 
+Tired of waiting for jQuery to load?
+Get to docready faster and get the same stuff done with awesome.js! 
+(It works in IE6, 7, 8, 9, Firefox, Webkit, Opera too!)
 
-Closure Compiler Stats:
-Original Size:	16.08KB (5.16KB gzipped)
-Compiled Size:	9.47KB (3.63KB gzipped)
+awesome.js size:
+- Original Size:	17.59KB (5.59KB gzipped)
+- Compiled Size:	10.37KB (3.93KB gzipped)
+
+vs. jQuery size:
+- Development Size: 214KB
+- Compiled Size: 29KB (gzipped)
