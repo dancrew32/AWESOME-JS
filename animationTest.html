@@ -4,6 +4,7 @@
 <title>Awesome animation</title>
 <style type="text/css">
 #foo {
+	background-color:#eee;
 	border:1px solid #ccc;
 	margin:0 auto;
 	/*filter:Alpha(Opacity=20);*/
@@ -21,21 +22,43 @@ animate me
 (function($) {
 	$.ready(function() {
 		var foo = $.getId('foo');
-		$.animate(foo, {
-			property: 'width',
-			to: '300px',
-			duration: 8000
-		});
-		/*$.animate(foo, {*/
-			/*property: 'opacity',*/
-			/*to: 0,*/
-			/*duration: 8000*/
-		/*});*/
-		$.animate(foo, {
-			property: 'height',
-			to: '400px',
-			duration: 8000
-		});
+
+		$.bind(foo, 'click', doStuff);
+		function doStuff() {
+			$.animate(foo, {
+				property: 'width',
+				to: '300px',
+				duration: 900,
+				callback: function() {
+					foo.innerHTML = 'width is done animating';
+					setTimeout(doHeight, 900);
+				}
+			});
+			function doHeight() {
+				foo.innerHTML = 'now we animate height!';
+				$.animate(foo, {
+					property: 'height',
+					to: '400px',
+					duration: 900,
+					callback: function() {
+						foo.innerHTML = 'done';
+						doOpacity();
+					}
+				});
+			}
+			function doOpacity() {
+				$.animate(foo, {
+					property: 'opacity',
+					to: 0,
+					duration: 4000,
+					callback: function() {
+						$.fadeIn(foo, 200, function(){
+							$.fadeOut(foo);	
+						});	
+					}
+				});
+			}
+		}
 	});
 }(AWESOME));
 </script>

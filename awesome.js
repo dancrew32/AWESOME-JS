@@ -207,6 +207,9 @@ var AWESOME = (function () {
 						return view.getComputedStyle(el, '')[prop] || null;
 					} else {
 						if (prop === 'opacity') {
+							if (el.filters.length <= 0) {
+								el.style.filter = 'alpha(opacity = 100)';
+							}
 							var opacity = el.filters('alpha').opacity; 
 							return isNaN(opacity) ? 1 : (opacity ? opacity / 100 : 0);
 						}
@@ -394,7 +397,8 @@ var AWESOME = (function () {
 				duration: 200,
 				easing: function(pos) {
 					return (-Math.cos(pos * Math.PI) / 2) + 0.5; 
-				}
+				},
+				callback: function() {}
 			}, options);
 
 			var fromNum = parseFloat(options.from);
@@ -412,18 +416,36 @@ var AWESOME = (function () {
 			}
 			
 			function getUnit(prop){
-				return prop.replace(/^[\-\d\.]+/,'') || '';
+				return prop.toString().replace(/^[\-\d\.]+/,'') || '';
 			}
 
 			interval = setInterval(function() {
 				var time = +new Date;
 				var pos = time > finish ? 1 : (time-start) / options.duration;
-				$this.log(options.property);
-				$this.style(el, options.property, interpolate(fromNum, toNum, options.easing(pos)) + toUnit); // wrap pos in easing formula
+				$this.style(el, options.property, interpolate(fromNum, toNum, options.easing(pos)) + toUnit);
 				if (time > finish) {
 					clearInterval(interval);
+					options.callback();
 				}
 			}, 10);
+		},
+		fadeIn: function(el, duration, callback) {
+			callback = callback || function() {};
+			this.animate(el, {
+				property: 'opacity',
+				to: 1,
+				duration: duration,
+				callback: callback
+			});
+		},
+		fadeOut: function(el, duration, callback) {
+			callback = callback || function() {};
+			this.animate(el, {
+				property: 'opacity',
+				to: 0,
+				duration: duration,
+				callback: callback
+			});
 		},
 		// Ajax
 		getUrlVars: function () {
