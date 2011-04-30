@@ -549,9 +549,9 @@ var AWESOME = (function () {
 			return options;
 		},
 		parse: function(str, type) {
-			type = type.toLowerCase() || 'json';	
+			type = type || 'json';	
 			var result;
-			switch (type) {
+			switch (type.toLowerCase()) {
 				case 'xml':
 					if (window.DOMParser) {
 						var parser = new DOMParser();
