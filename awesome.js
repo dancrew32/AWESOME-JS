@@ -561,6 +561,7 @@ var AWESOME = (function () {
 			return options;
 		},
 		parse: function(str, type) {
+			if (str === "") return;
 			type = type || 'json';	
 			var result;
 			switch (type.toLowerCase()) {
