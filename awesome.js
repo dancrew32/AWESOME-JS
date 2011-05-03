@@ -672,6 +672,15 @@ var AWESOME = (function () {
 			}
 			return result;
 		},
+		addScript: function(url, id) {
+			var $this = this;
+			var script = this.create('script');	
+			script.type = 'text/javascript';
+			script.src = url || '#';
+			script.id = id || 'awesome-script'; // id to remove 
+			this.append(script, $this.getTag('head')[0]);
+			return true;
+		},
 		ajax: function(options) {
 			options = this.setDefaults({
 				url:          null,
@@ -697,7 +706,7 @@ var AWESOME = (function () {
 					post(options.url, options.data);
 				break;
 				case 'JSONP':
-					getJSONP(options.url, options.requestId);
+					this.addScript(options.url, options.requestId || 'awesome-jsonp');
 				break;
 			}
 			
@@ -757,14 +766,6 @@ var AWESOME = (function () {
 				return req;
 			}
 
-			function getJSONP(url, id) {
-				var script = $this.create('script');	
-				script.type = 'text/javascript';
-				script.src = url;
-				script.id = id || 'awesome-jsonp'; // id to remove 
-				$this.append(script, $this.getTag('head')[0]);
-			}
-		
 			function getRequest() {
 				if (typeof(XMLHttpRequest) !== 'undefined')
 					return new XMLHttpRequest();
