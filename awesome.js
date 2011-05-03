@@ -349,6 +349,15 @@ var AWESOME = (function () {
 				return m.round(m.random()); // 1 or 0
 			}
 		},
+		inArray: function(obj, arr) {
+			var i = arr.length;
+			while (i--) {
+				if (arr[i] === obj) {
+					return true;
+				}
+			}
+			return false;
+		},
 		sort: function(options) {
 			options = this.setDefaults({
 				arr: [],
