@@ -251,6 +251,9 @@ var AWESOME = (function () {
 		encodeHTML: function (str) {
 			return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		},
+		stripHTML: function (str) {
+			return str.replace(/<.*?>/g,'');
+		},
 		text: function (obj, txt) {
 			if (typeof obj !== 'undefined') {
 				if (txt) {
