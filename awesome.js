@@ -358,6 +358,16 @@ var AWESOME = (function () {
 			}
 			return false;
 		},
+		isDescendant: function(p, c) {
+			var node = c.parentNode;
+			while (node !== null) {
+				if (node === p) {
+					return true;
+				}
+				node = node.parentNode;
+			}
+			return false;
+		},
 		sort: function(options) {
 			options = this.setDefaults({
 				arr: [],

@@ -16,6 +16,7 @@
 			var lastLink = links[links.length - 1];
 			lastLink.relatedElement = element;
 			lastLink.onclick = $.dragDrop.startDragKeys;
+			$.addClass(element, 'draggable');
 		},
 		startDragMouse: function (e) {
 			$.dragDrop.startDrag(this);
