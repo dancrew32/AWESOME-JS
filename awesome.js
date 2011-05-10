@@ -585,6 +585,9 @@ var AWESOME = (function () {
 						result = xmlDoc.loadXML(str); }
 				break;
 				case 'json':
+					if (JSON.parse) {
+						return JSON.parse(str);
+					}
 					var number = '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)';
 					var oneChar = '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]'
 							+ '|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))';
@@ -598,7 +601,7 @@ var AWESOME = (function () {
 					var escapes = {
 						'"': '"',
 						'/': '/',
-						'\\': '\\',
+						t\\': '\\',
 						'b': '\b',
 						'f': '\f',
 						'n': '\n',
