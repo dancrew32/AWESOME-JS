@@ -218,6 +218,21 @@ var AWESOME = (function () {
 				}
 			}
 		},
+		getPosition: function(obj) {
+			if (!obj) return;
+			var curleft = curtop = 0;
+			do {
+				curLeft += obj.offsetLeft;
+				curTop += obj.offsetTop;
+			} while (obj = obj.offsetParent);
+			return [curLeft, curTop];
+		},
+		getScrollPosition: function() {
+			if (window.pageYOffset !== 'undefined') {
+				return window.pageYOffset;
+			}
+			return document.documentElement.scrollTop;
+		},
 		docHeight: function () {
 			var D = document;
 			return Math.max(
