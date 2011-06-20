@@ -245,6 +245,26 @@ var AWESOME = (function () {
 			var D = document;
 			return Math.max(D.body.clientWidth, D.documentElement.clientWidth);
 		},
+		viewportHeight: function () {
+			if (typeof window.innerHeight !== 'undefined') {
+				return window.innerHeight;
+			} else if (typeof document.documentElement !== 'undefined'
+						&& typeof document.documentElement.clientHeight !== 'undefined'
+						&& document.documentElement.clientHeight) { //ie6
+				return document.documentElement.clientHeight;	
+			}
+			return document.getElementsByTagName('body')[0].clientHeight;
+		},
+		viewportWidth: function () {
+			if (typeof window.innerWidth !== 'undefined') {
+				return window.innerWidth;
+			} else if (typeof document.documentElement !== 'undefined'
+						&& typeof document.documentElement.clientWidth !== 'undefined'
+						&& document.documentElement.clientWidth) { //ie6
+				return document.documentElement.clientWidth;	
+			}
+			return document.getElementsByTagName('body')[0].clientWidth;
+		},
 		attr: function (ele, attr, newVal) {
 			newVal = newVal || null;
 			if (newVal) {
@@ -812,16 +832,16 @@ var AWESOME = (function () {
 					return new XMLHttpRequest();
 				try {
 					return new ActiveXObject('Msxml2.XMLHTTP.6.0');
-				} catch(e) { }
+				} catch(e) {}
 				try {
 					return new ActiveXObject('Msxml2.XMLHTTP.3.0');
-				} catch(e) { }
+				} catch(e) {}
 				try {
 					return new ActiveXObject('Msxml2.XMLHTTP');
-				} catch(e) { }
+				} catch(e) {}
 				try {
 					return new ActiveXObject('Microsoft.XMLHTTP');
-				} catch(e) { }
+				} catch(e) {}
 				return null;
 			}
 		}
