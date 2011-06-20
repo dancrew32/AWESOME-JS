@@ -134,14 +134,15 @@
 		}
 
 
-		$.text(link, 'test');
-		if ($.text(link) === 'test') {
+		$.text(linkTest, 'test');
+		if ($.text(linkTest) === 'test') {
 			pass('text');
 		}
-		$.remove(link);
+		$.remove(linkTest);
+
+		function pass(method) {
+			info.innerHTML += method +' works.<br>';	
+		}
 	});
 
-	function pass(method) {
-		info.innerHTML += method +' works.<br>';	
-	}
 }(AWESOME));
