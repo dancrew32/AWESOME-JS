@@ -99,7 +99,7 @@
 		}
 
 		$.remove($.getId('b'));
-		if (typeof $.getId('b') === 'undefined') {
+		if ($.getId('b') === null) {
 			pass('remove');
 		}
 

@@ -322,17 +322,24 @@ var AWESOME = (function () {
 		swap: function (a, b) {
 			a.parentNode.replaceChild(b, a);
 		},
-		remove: function (ele) {
+		remove: function (ele, recursive) {
 			if (!ele) return false;
 			if (!('length' in ele)) {
 				ele = [ele];
 			}
 			var i = ele.length;
+			recursive = recursive || true;
 			while (i--) {
 				if (typeof ele[i].parentNode !== 'undefined') {
-					ele[i].parentNode.removeChild(ele[i]);
+					recursive ? this.destroy(ele[i]) : ele[i].parentNode.removeChild(ele[i]);
 				}
 			}
+		},
+		destroy: function(el) {
+			if (el !== 'undefined')
+			var trash = this.create('DIV');
+			trash.appendChild(el);
+			trash.innerHTML = '';
 		},
 		create: function (tag) {
 			// TODO: add a name attribute try/catch to solve <= ie7 submitName issue
