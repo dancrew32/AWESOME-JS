@@ -1,23 +1,29 @@
 // Awesome ensues 
-var AWESOME = (function () {
+var AWESOME = (function (WIN, DOC) {
+	var BODY = DOC.body;
+	var DOCEL = DOC.documentElement;
+	var canAttach = BODY.addEventListener;
+
 	return {
 		ready: function (fn, ctx) {
-			var ready, timer,
-				onStateChange = function (e) {
+			var contentLoaded = 'DOMContentLoaded';
+			var ready;
+			var timer;
+			var onStateChange = function (e) {
 				// Mozilla & Opera
-				if (e && e.type === 'DOMContentLoaded') {
+				if (e && e.type === contentLoaded) {
 					fireDOMReady();
 					// Legacy
 				} else if (e && e.type === 'load') {
 					fireDOMReady();
 					// Safari & IE
-				} else if (document.readyState) {
-					if ((/loaded|complete/).test(document.readyState)) {
+				} else if (DOC.readyState) {
+					if ((/loaded|complete/).test(DOC.readyState)) {
 						fireDOMReady();
 						// IE, courtesy of Diego Perini (http://javascript.nwbox.com/IEContentLoaded/)
-					} else if ( !! document.documentElement.doScroll) {
+					} else if (!!DOCEL.doScroll) {
 						try {
-							ready || document.documentElement.doScroll('left');
+							ready || DOCEL.doScroll('left');
 						} catch (ex) {
 							return;
 						}
@@ -29,33 +35,33 @@ var AWESOME = (function () {
 				if (!ready) {
 					ready = true;
 					// Call the onload function in given context or window object
-					fn.call(ctx || window);
+					fn.call(ctx || WIN);
 					// Clean up after the DOM is ready
-					if (document.removeEventListener) 
-						document.removeEventListener('DOMContentLoaded', onStateChange, false);
-						document.onreadystatechange = null;
-						window.onload = null;
-						clearInterval(timer);
-						timer = null;
+					if (canAttach) 
+						DOC.removeEventListener(contentLoaded, onStateChange, false);
+					DOC.onreadystatechange = null;
+					WIN.onload = null;
+					clearInterval(timer);
+					timer = null;
 				}
 			};
 			// Mozilla & Opera
-			if (document.addEventListener) 
-				document.addEventListener('DOMContentLoaded', onStateChange, false);
-				// IE
-				document.onreadystatechange = onStateChange;
-				// Safari & IE
-				timer = setInterval(onStateChange, 5);
-				// Legacy
-				window.onload = onStateChange;
+			if (canAttach) 
+				DOC.addEventListener(contentLoaded, onStateChange, false);
+			// IE
+			DOC.onreadystatechange = onStateChange;
+			// Safari & IE
+			timer = setInterval(onStateChange, 5);
+			// Legacy
+			WIN.onload = onStateChange;
 		},
 		log: function (data) {
-			if (typeof console !== 'undefined') {
+			if (!this.isUndefined(console)) {
 				console.log(data);
 			}
 		},
 		cancelEvent: function (event) {
-			event = event || window.event;
+			event = event || WIN.event;
 			if (event.preventDefault) {
 				event.preventDefault();
 			} else {
@@ -70,14 +76,14 @@ var AWESOME = (function () {
 			}
 		},
 		bind: function (obj, type, handler, delegate) {
-			if (typeof obj === 'undefined' || obj === null) {return;}
+			if (this.isUndefined(obj) || obj === null) {return;}
 			delegate = delegate || false;
-			if (typeof obj.length === 'undefined') {
+			if (this.isUndefined(obj.length)) {
 				obj = [obj];	
 			}
 			var i = obj.length;
 			while (i--) {
-				if (obj[i].addEventListener) {
+				if (canAttach) {
 					obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
 				} else if (obj.attachEvent) {
 					obj[i].attachEvent('on' + type, handler);
@@ -87,14 +93,14 @@ var AWESOME = (function () {
 			}
 		},
 		unbind: function (obj, type, handler, delegate) {
-			if (typeof obj === 'undefined' || obj === null) {return;}
+			if (this.isUndefined(obj) || obj === null) {return;}
 			delegate = delegate || false;
-			if (typeof obj.length === 'undefined') {
+			if (this.isUndefined(obj.length)) {
 				obj = [obj];	
 			}
 			var i = obj.length;
 			while (i--) {
-				if (obj[i].removeEventListener) {
+				if (canAttach) {
 					obj[i].removeEventListener(type, handler, delegate);
 				} else if (obj[i].detachEvent) {
 					obj[i].detachEvent('on' + type, handler);
@@ -105,23 +111,26 @@ var AWESOME = (function () {
 		},
 		fire: function(obj, ev, delegate, cancelable) {
 			var evt;
-			if (document.createEventObject) { // ie
-				evt = document.createEventObject();
+			if (DOC.createEventObject) { // ie
+				evt = DOC.createEventObject();
 				return obj.fireEvent('on'+ ev, evt);
 			}
 			delegate = delegate || false;
 			cancelable = cancelable || true;
-			evt = document.createEvent('HTMLEvents');
+			evt = DOC.createEvent('HTMLEvents');
 			evt.initEvent(ev, delegate, cancelable);
 			return !obj.dispatchEvent(evt);
 		},
 		hover: function (obj, over, out, delegate) {
-			if (typeof obj === 'undefined') {return;}
+			if (this.isUndefined(obj)) {return;}
 			var $this = this;
 			out = out || null;
 			$this.bind(obj, 'mouseover', over, delegate);
 			if (out) 
 				$this.bind(obj, 'mouseout', out, delegate);
+		},
+		isUndefined: function(val) {
+			return typeof val === 'undefined';	
 		},
 		hasClass: function (el, cls) {
 			var re = el.className.split(" ");
@@ -133,9 +142,9 @@ var AWESOME = (function () {
 						}
 					}
 					return -1;
-				}
+				};
 			}
-			if (typeof re === 'undefined') { return false; }
+			if (this.isUndefined(re)) { return false; }
 			return -1 !== re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
@@ -143,21 +152,21 @@ var AWESOME = (function () {
 				el.className += ' ' + cls;
 		},
 		removeClass: function (el, cls) {
-			if (this.hasClass(el, cls)) 
-				var re = el.className.split(' ');
-				if (typeof re === 'undefined') { return;	}
-				re.splice(re.indexOf(cls), 1);
-				var i = re.length;
-				el.className = ''; // empty
-				while(i--) { // reload
-					el.className += re[i] + ' ';
-				}
+			if (!this.hasClass(el, cls)) return;
+			var re = el.className.split(' ');
+			if (this.isUndefined(re)) { return;	}
+			re.splice(re.indexOf(cls), 1);
+			var i = re.length;
+			el.className = ''; // empty
+			while(i--) { // reload
+				el.className += re[i] + ' ';
+			}
 		},
 		getId: function (id) {
-			return document.getElementById(id);
+			return DOC.getElementById(id);
 		},
 		getTag: function (tag, context) {
-			context = context || document;
+			context = context || DOC;
 			tag = tag || '*';
 			return context.getElementsByTagName(tag);
 		},
@@ -187,8 +196,8 @@ var AWESOME = (function () {
 			return ccstr;
 		},
 		style: function (el, prop, newVal) {
-			if (typeof el !== 'undefined')
-			if (typeof prop === 'undefined') {
+			if (!this.isUndefined(el))
+			if (this.isUndefined(prop)) {
 				return el.currentStyle || getComputedStyle(el, null);	
 			} else {
 				prop = this.toCamelCase(prop);
@@ -202,15 +211,15 @@ var AWESOME = (function () {
 						el.style[prop] = newVal;
 					}
 				} else {
-					var view = document.defaultView;
+					var view = DOC.defaultView;
 					if (view && view.getComputedStyle) {
 						return view.getComputedStyle(el, '')[prop] || null;
 					} else {
 						if (prop === 'opacity') {
-							if (el.filters.length <= 0) {
+							if (el['filters'].length <= 0) {
 								el.style.filter = 'alpha(opacity = 100)';
 							}
-							var opacity = el.filters('alpha').opacity; 
+							var opacity = el['filters']('alpha').opacity; 
 							return isNaN(opacity) ? 1 : (opacity ? opacity / 100 : 0);
 						}
 						return el.currentStyle[prop] || null;
@@ -220,7 +229,8 @@ var AWESOME = (function () {
 		},
 		getPosition: function(obj) {
 			if (!obj) return;
-			var curleft = curtop = 0;
+			var curleft = 0;
+			var curtop = 0;
 			do {
 				curLeft += obj.offsetLeft;
 				curTop += obj.offsetTop;
@@ -228,42 +238,40 @@ var AWESOME = (function () {
 			return [curLeft, curTop];
 		},
 		getScrollPosition: function() {
-			if (window.pageYOffset !== 'undefined') {
-				return window.pageYOffset;
+			if (!this.isUndefined(WIN.pageYOffset)) {
+				return WIN.pageYOffset;
 			}
-			return document.documentElement.scrollTop;
+			return DOCEL.scrollTop;
 		},
 		docHeight: function () {
-			var D = document;
 			return Math.max(
-				Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
-				Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
-				Math.max(D.body.clientHeight, D.documentElement.clientHeight)
+				Math.max(BODY.scrollHeight, DOCEL.scrollHeight),
+				Math.max(BODY.offsetHeight, DOCEL.offsetHeight),
+				Math.max(BODY.clientHeight, DOCEL.clientHeight)
 			);
 		},
 		docWidth: function () {
-			var D = document;
-			return Math.max(D.body.clientWidth, D.documentElement.clientWidth);
+			return Math.max(BODY.clientWidth, DOCEL.clientWidth);
 		},
 		viewportHeight: function () {
-			if (typeof window.innerHeight !== 'undefined') {
-				return window.innerHeight;
-			} else if (typeof document.documentElement !== 'undefined'
-						&& typeof document.documentElement.clientHeight !== 'undefined'
-						&& document.documentElement.clientHeight) { //ie6
-				return document.documentElement.clientHeight;	
+			if (!this.isUndefined(WIN.innerHeight)) {
+				return WIN.innerHeight;
+			} else if (!this.isUndefined(DOCEL)
+						&& !this.isUndefined(DOCEL.clientHeight)
+						&& DOCEL.clientHeight) { //ie6
+				return DOCEL.clientHeight;	
 			}
-			return document.getElementsByTagName('body')[0].clientHeight;
+			return BODY.clientHeight;
 		},
 		viewportWidth: function () {
-			if (typeof window.innerWidth !== 'undefined') {
-				return window.innerWidth;
-			} else if (typeof document.documentElement !== 'undefined'
-						&& typeof document.documentElement.clientWidth !== 'undefined'
-						&& document.documentElement.clientWidth) { //ie6
-				return document.documentElement.clientWidth;	
+			if (!this.isUndefined(WIN.innerWidth)) {
+				return WIN.innerWidth;
+			} else if (!this.isUndefined(DOCEL)
+						&& !this.isUndefined(DOCEL.clientWidth)
+						&& DOCEL.clientWidth) { //ie6
+				return DOCEL.clientWidth;	
 			}
-			return document.getElementsByTagName('body')[0].clientWidth;
+			return BODY.clientWidth;
 		},
 		attr: function (ele, attr, newVal) {
 			newVal = newVal || null;
@@ -290,9 +298,9 @@ var AWESOME = (function () {
 			return str.replace(/<.*?>/g,'');
 		},
 		text: function (obj, txt) {
-			if (typeof obj !== 'undefined') {
+			if (!this.isUndefined(obj)) {
 				if (txt) {
-					if (obj.innerText !== 'undefined') {
+					if (!this.isUndefined(obj.innerText)) {
 						obj.innerText = txt;
 					}
 					obj.textContent = txt;
@@ -311,7 +319,7 @@ var AWESOME = (function () {
 			node.insertBefore(newNode, node.childNodes[0]);
 		},
 		append: function (newNode, node) {
-			node.appendChild(newNode)
+			node.appendChild(newNode);
 		},
 		before: function (newNode, node) {
 			node.parentNode.insertBefore(newNode, node);
@@ -330,46 +338,50 @@ var AWESOME = (function () {
 			var i = ele.length;
 			recursive = recursive || true;
 			while (i--) {
-				if (typeof ele[i].parentNode !== 'undefined') {
-					recursive ? this.destroy(ele[i]) : ele[i].parentNode.removeChild(ele[i]);
+				if (!this.isUndefined(ele[i].parentNode)) {
+					if (recursive) {
+						this.destroy(ele[i]);
+						continue;
+					}
+					ele[i].parentNode.removeChild(ele[i]);
 				}
 			}
 		},
 		destroy: function(el) {
-			if (el !== 'undefined')
+			if (this.isUndefined(el)) return;
 			var trash = this.create('DIV');
 			trash.appendChild(el);
 			trash.innerHTML = '';
 		},
 		create: function (tag) {
 			// TODO: add a name attribute try/catch to solve <= ie7 submitName issue
-			return document.createElement(tag);
+			return DOC.createElement(tag);
 		},
 		// Cookies
 		createCookie: function (name, value, days, domain) {
 			var expires = '';
-			domain = domain || window.location.host;
+			domain = domain || WIN.location.host;
 			if (days) {
 				var date = new Date();
 				date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
 				expires = '; expires=' + date.toGMTString();
 			}
 			// document.cookie = name +'='+ value + expires +'; domain=.'+ domain +' ;path=/';
-			document.cookie = name + '=' + value + expires + ';';
+			DOC.cookie = name + '=' + value + expires + ';';
 		},
 		eraseCookie: function (name) {
 			this.createCookie(name, '', -1);
 		},
 		readCookie: function (c_name) {
-			if (document.cookie.length > 0) {
-				var c_start = document.cookie.indexOf(c_name + "=");
+			if (DOC.cookie.length > 0) {
+				var c_start = DOC.cookie.indexOf(c_name + "=");
 				if (c_start !== -1) {
 					c_start = c_start + c_name.length + 1;
-					var c_end = document.cookie.indexOf(";", c_start);
+					var c_end = DOC.cookie.indexOf(";", c_start);
 					if (c_end === -1) {
-						c_end = document.cookie.length;
+						c_end = DOC.cookie.length;
 					}
-					return unescape(document.cookie.substring(c_start, c_end));
+					return unescape(DOC.cookie.substring(c_start, c_end));
 				}
 			}
 			return null;
@@ -472,7 +484,7 @@ var AWESOME = (function () {
 			var toUnit = getUnit(options.to) || fromUnit;
 
 			var interval;
-			var start = +new Date;
+			var start = +new Date();
 			var finish = start + options.duration;
 
 			function interpolate(source, target, pos) {
@@ -484,7 +496,7 @@ var AWESOME = (function () {
 			}
 
 			interval = setInterval(function() {
-				var time = +new Date;
+				var time = +new Date();
 				var pos = time > finish ? 1 : (time-start) / options.duration;
 				$this.style(el, options.property, interpolate(fromNum, toNum, options.easing(pos)) + toUnit);
 				if (time > finish) {
@@ -515,7 +527,7 @@ var AWESOME = (function () {
 		getUrlVars: function () {
 			var vars = [];
 			var hash;
-			var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+			var hashes = WIN.location.href.slice(WIN.location.href.indexOf('?') + 1).split('&');
 			var hashlen = hashes.length;
 			for (var i = 0; i < hashlen; ++i) {
 				hash = hashes[i].split('=');
@@ -540,9 +552,9 @@ var AWESOME = (function () {
 			}
 			// build list of viable form elements
 			var rawChildrenLen = rawChildren.length;
-			for (var i=0; i < rawChildrenLen; ++i) {
-				var currentNode = rawChildren[i];
-				switch(rawChildren[i].nodeName.toLowerCase()) {
+			for (var k=0; k < rawChildrenLen; ++k) {
+				var currentNode = rawChildren[k];
+				switch(rawChildren[k].nodeName.toLowerCase()) {
 					case 'input':
 						switch(currentNode.type) {
 							case 'text':
@@ -576,15 +588,15 @@ var AWESOME = (function () {
 			}
 			//build object of the name-value pairs
 			var formChildrenLen = formChildren.length;
-			for (var i = 0; i < formChildrenLen; ++i) {
-				var currentNode = formChildren[i];
-				if (!returnObject.hasOwnProperty(currentNode.name)) {
-					returnObject[currentNode.name] = currentNode.value;
+			for (var m = 0; m < formChildrenLen; ++m) {
+				var currentChild = formChildren[m];
+				if (!returnObject.hasOwnProperty(currentChild.name)) {
+					returnObject[currentChild.name] = currentChild.value;
 				} else {
-					if (typeof returnObject[currentNode.name] === 'string') {
-						returnObject[currentNode.name] = [returnObject[currentNode.name], currentNode.value.toString()];					
+					if (typeof returnObject[currentChild.name] === 'string') {
+						returnObject[currentChild.name] = [returnObject[currentChild.name], currentChild.value.toString()];					
 					} else {
-						returnObject[currentNode.name].push(currentNode.value.toString());
+						returnObject[currentChild.name].push(currentChild.value.toString());
 					}
 				}
 			}
@@ -593,9 +605,9 @@ var AWESOME = (function () {
 		formatParams: function (obj) {
 			if (obj === null) {return '';}
 			var q = [];
-			for (p in obj) {
-				if (obj.hasOwnProperty(p)) {
-					q.push( encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]) );
+			for (var prop in obj) {
+				if (obj.hasOwnProperty(prop)) {
+					q.push( encodeURIComponent(prop) + "=" + encodeURIComponent(obj[prop]) );
 				}
 			}
 			return q.join("&");
@@ -605,7 +617,7 @@ var AWESOME = (function () {
 				options = defaults;
 			} else {
 				for (var index in defaults) {
-					if (typeof options[index] === 'undefined') {
+					if (this.isUndefined(options[index])) {
 						options[index] = defaults[index];
 					}
 				}
@@ -618,7 +630,7 @@ var AWESOME = (function () {
 			var result;
 			switch (type.toLowerCase()) {
 				case 'xml':
-					if (window.DOMParser) {
+					if (WIN.DOMParser) {
 						var parser = new DOMParser();
 						result = parser.parseFromString(str, 'text/xml');
 					} else { // ie
@@ -653,7 +665,7 @@ var AWESOME = (function () {
 					function unescapeOne(_, ch, hex) {
 						return ch ? escapes[ch] : String.fromCharCode(parseInt(hex, 16));
 					}
-					var EMPTY_STRING = new String('');
+					var EMPTY_STRING = '';
 					var SLASH = '\\';
 					var firstTokenCtors = { '{': Object, '[': Array };
 					var hop = Object.hasOwnProperty;
@@ -675,11 +687,6 @@ var AWESOME = (function () {
 						tok = toks[i];
 						var cont;
 						switch (tok.charCodeAt(0)) {
-							default:  // sign or digit
-								cont = stack[0];
-								cont[key || cont.length] = +(tok);
-								key = void 0;
-								break;
 							case 0x22:  // '"'
 								tok = tok.substring(1, tok.length - 1);
 								if (tok.indexOf(SLASH) !== -1) {
@@ -728,6 +735,11 @@ var AWESOME = (function () {
 							case 0x7d:  // '}'
 								stack.shift();
 								break;
+							default:  // sign or digit
+								cont = stack[0];
+								cont[key || cont.length] = +(tok);
+								key = void 0;
+								break;
 						}
 					}
 					if (topLevelPrimitive) {
@@ -764,6 +776,7 @@ var AWESOME = (function () {
 				failure:      function() {}
 			}, options);
 			var $this = this;
+			var MSxml = 'Msxml2.XMLHTTP';
 
 			// init
 			switch (options.type.toUpperCase()) {
@@ -798,7 +811,7 @@ var AWESOME = (function () {
 					switch (req.readyState) {
 						case 0:
 							options.beforeSend();
-						break
+						break;
 						case 1:
 							options.sendPrepared();
 						break;
@@ -835,22 +848,21 @@ var AWESOME = (function () {
 			}
 
 			function getRequest() {
-				if (typeof(XMLHttpRequest) !== 'undefined')
+				if (!this.isUndefined(XMLHttpRequest))
 					return new XMLHttpRequest();
 				try {
-					return new ActiveXObject('Msxml2.XMLHTTP.6.0');
-				} catch(e) {}
+					return new ActiveXObject(MSxml +'.6.0');
+				} catch(e1) {}
 				try {
-					return new ActiveXObject('Msxml2.XMLHTTP.3.0');
-				} catch(e) {}
+					return new ActiveXObject(MSxml +'.3.0');
+				} catch(e2) {}
 				try {
-					return new ActiveXObject('Msxml2.XMLHTTP');
-				} catch(e) {}
+					return new ActiveXObject(MSxml);
+				} catch(e3) {}
 				try {
 					return new ActiveXObject('Microsoft.XMLHTTP');
-				} catch(e) {}
-				return null;
+				} catch(e4) {}
 			}
 		}
 	};
-}());
+}(window, document));
