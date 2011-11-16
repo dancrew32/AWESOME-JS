@@ -2,7 +2,7 @@
 var AWESOME = (function (WIN, DOC) {
 	var BODY = DOC.body;
 	var DOCEL = DOC.documentElement;
-	var canAttach = BODY.addEventListener;
+	var canAttach = typeof BODY.addEventListener === undefined;
 
 	return {
 		ready: function (fn, ctx) {
