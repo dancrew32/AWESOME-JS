@@ -235,13 +235,38 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		getPosition: function(obj) {
 			if (!obj) return;
-			var curleft = 0;
-			var curtop = 0;
+			var curLeft = 0;
+			var curTop = 0;
 			do {
 				curLeft += obj.offsetLeft;
 				curTop += obj.offsetTop;
 			} while (obj = obj.offsetParent);
-			return [curLeft, curTop];
+			return {
+				top: curTop,
+				left: curLeft
+			};
+		},
+		getMousePosition: function(event, relativeTo) {
+			var x = event.pageX;
+			var y = event.pageY;
+			if (this.isNull(x) && !this.isNull(event.clientX)) {
+				var xScroll = (DOCEL && DOCEL.scrollLeft || BODY && BODY.scrollLeft || 0);
+				var	xClient = (DOCEL && DOCEL.clientLeft || BODY && BODY.clientLeft || 0);
+				var yScroll = (DOCEL && DOCEL.scrollTop || BODY && BODY.scrollTop || 0);
+				var yClient = (DOCEL && DOCEL.clientTop || BODY && BODY.clientTop || 0);
+				x = event.clientX + xScroll - xClient;
+				y = event.clientY + yScroll - yClient;
+			}
+			if (!this.isNullOrUndefined(relativeTo)) {
+				var tar = (typeof relativeTo === 'object') ? relativeTo : event.target;
+				var tarPos = this.getPosition(tar);
+				x = x - tarPos.left;
+				y = y - tarPos.top;
+			}
+			return {
+				x: x,
+				y: y
+			};
 		},
 		getScrollPosition: function() {
 			if (!this.isUndefined(WIN.pageYOffset)) {
