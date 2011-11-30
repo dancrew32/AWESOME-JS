@@ -76,7 +76,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		bind: function (obj, type, handler, delegate) {
-			if (this.isUndefined(obj) || obj === null) {return;}
+			if (this.isUndefined(obj) || this.isNull(obj)) {return;}
 			delegate = delegate || false;
 			if (this.isUndefined(obj.length)) {
 				obj = [obj];	
@@ -93,7 +93,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		unbind: function (obj, type, handler, delegate) {
-			if (this.isUndefined(obj) || obj === null) {return;}
+			if (this.isUndefined(obj) || this.isNull(obj)) {return;}
 			delegate = delegate || false;
 			if (this.isUndefined(obj.length)) {
 				obj = [obj];	
@@ -131,6 +131,12 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		isUndefined: function(val) {
 			return typeof val === 'undefined';	
+		},
+		isNull: function(val) {
+			return typeof val === 'null';	
+		},
+		isNullOrUndefined: function(val) {
+			return this.isNull(val) || this.isUndefined(val);	
 		},
 		hasClass: function (el, cls) {
 			var re = el.className.split(" ");
@@ -354,20 +360,26 @@ var AWESOME = (function (WIN, DOC) {
 			trash.innerHTML = '';
 		},
 		create: function (tag) {
-			// TODO: add a name attribute try/catch to solve <= ie7 submitName issue
 			return DOC.createElement(tag);
 		},
 		// Cookies
 		createCookie: function (name, value, days, domain) {
 			var expires = '';
+			var cookie;
 			domain = domain || WIN.location.host;
 			if (days) {
 				var date = new Date();
 				date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
 				expires = '; expires=' + date.toGMTString();
 			}
-			// document.cookie = name +'='+ value + expires +'; domain=.'+ domain +' ;path=/';
-			DOC.cookie = name + '=' + value + expires + ';';
+			cookie = name + '=' + value + expires + ';';
+			if (domain) {
+				cookie += ' domain=.'+ domain +' ;';
+			}
+			if (path) {
+				cookie += 'path='+ path;
+			}
+			DOC.cookie =  cookie;
 		},
 		eraseCookie: function (name) {
 			this.createCookie(name, '', -1);
@@ -414,7 +426,7 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		isDescendant: function(p, c) {
 			var node = c.parentNode;
-			while (node !== null) {
+			while (!this.isNull(node)) {
 				if (node === p) {
 					return true;
 				}
@@ -603,7 +615,7 @@ var AWESOME = (function (WIN, DOC) {
 			return returnObject;
 		},
 		formatParams: function (obj) {
-			if (obj === null) {return '';}
+			if (this.isNull(obj)) {return '';}
 			var q = [];
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
@@ -794,7 +806,7 @@ var AWESOME = (function (WIN, DOC) {
 			//private
 			function open(method, url) {
 				var req = getRequest();
-				if (req === null) {return;}
+				if (this.isNull(req)) {return;}
 				var d = new Date();
 				
 				req.open(method, url, true);
