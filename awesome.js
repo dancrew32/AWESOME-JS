@@ -251,7 +251,7 @@ var AWESOME = (function (WIN, DOC) {
 			var y = event.pageY;
 			if (this.isNull(x) && !this.isNull(event.clientX)) {
 				var xScroll = (DOCEL && DOCEL.scrollLeft || BODY && BODY.scrollLeft || 0);
-				var	xClient = (DOCEL && DOCEL.clientLeft || BODY && BODY.clientLeft || 0);
+				var xClient = (DOCEL && DOCEL.clientLeft || BODY && BODY.clientLeft || 0);
 				var yScroll = (DOCEL && DOCEL.scrollTop || BODY && BODY.scrollTop || 0);
 				var yClient = (DOCEL && DOCEL.clientTop || BODY && BODY.clientTop || 0);
 				x = event.clientX + xScroll - xClient;
