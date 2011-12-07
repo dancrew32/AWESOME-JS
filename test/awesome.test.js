@@ -163,9 +163,14 @@
 			}
 		});
 
-		var form = $.serialize($.getId('test_form'));
-		if (form.a === 'test' && form.d[0] === '1') {
+		var formArray = $.serialize($.getId('test_form'));
+		if (formArray.a === 'test' && formArray.d[0] === '1') {
 			pass('form serialize (to array)');
+		}
+
+		var params = $.formatParams(formArray);
+		if (params = 'a=test&c=3&d=1%2C3&b=1') {
+			pass('format params');	
 		}
 		
 

@@ -323,7 +323,10 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		encodeHTML: function (str) {
-			return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+			return str.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;');
 		},
 		stripHTML: function (str) {
 			return str.replace(/<.*?>/g,'');
