@@ -140,6 +140,27 @@
 		}
 		$.remove(linkTest);
 
+		$.ajax({
+			url: 'test.json',
+			type: 'JSON',
+			complete: function(data) {
+				if (typeof data.glossary.title === 'string') {
+					pass('ajax');
+					pass('parse(json)');
+				}
+			}
+		});
+		$.ajax({
+			url: 'test.xml',
+			type: 'XML',
+			complete: function(data) {
+				var output = $.getTag('to', data)[0];
+				if (typeof $.text(output) === 'string') {
+					pass('parse(xml)');
+				}
+			}
+		});
+
 		function pass(method) {
 			info.innerHTML += method +' works.<br>';	
 		}
