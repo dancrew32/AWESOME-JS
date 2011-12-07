@@ -546,19 +546,16 @@ var AWESOME = (function (WIN, DOC) {
 			}, 10);
 		},
 		fadeIn: function(el, duration, callback) {
-			callback = callback || function() {};
-			this.animate(el, {
-				property: 'opacity',
-				to: 1,
-				duration: duration,
-				callback: callback
-			});
+			this.fade(el, duration, 1, callback);
 		},
 		fadeOut: function(el, duration, callback) {
+			this.fade(el, duration, 0, callback);
+		},
+		fade: function(el, duraction, to, callback) {
 			callback = callback || function() {};
 			this.animate(el, {
 				property: 'opacity',
-				to: 0,
+				to: to,
 				duration: duration,
 				callback: callback
 			});
