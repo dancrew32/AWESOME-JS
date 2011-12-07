@@ -1,4 +1,4 @@
-(function($) {
+(function($, doc, win) {
 $.screenOverlay = (function (options) {
 	options = $.setDefaults({
 		header:     null,
@@ -16,7 +16,7 @@ $.screenOverlay = (function (options) {
 
 	// Make Viewport-sized grey area
 	function makeOverlay(windowWidth, windowHeight, id) {
-		var $body = document.body,
+		var $body = doc.body,
 			overlayer = $this.getId(id),
 			lightbox = $this.getId(options.lightboxId),
 			lightboxClose = $this.getId(options.lightboxId + '-close');
@@ -31,7 +31,7 @@ $.screenOverlay = (function (options) {
 			$this.prepend(lightboxDIV, $body);
 			$this.attr(lightboxDIV, 'id', options.lightboxId);
 
-			$this.addClass(document.documentElement, 'has-overlay');
+			$this.addClass(doc.documentElement, 'has-overlay');
 			
 			var overlayer = $this.getId(id),
 			lightbox = $this.getId(options.lightboxId);
@@ -53,7 +53,7 @@ $.screenOverlay = (function (options) {
 		$this.style(overlayer, 'height', windowHeight + 'px');
 		
 		function closeOverlay() {
-			$this.removeClass(document.documentElement, 'has-overlay');
+			$this.removeClass(doc.documentElement, 'has-overlay');
 			$this.remove(lightbox);
 			$this.remove(overlayer);
 		}
@@ -70,7 +70,7 @@ $.screenOverlay = (function (options) {
 		});
 		
 		// bind resizing
-		window.onresize = function() {
+		win.onresize = function() {
 			didResize = true;
 		};
 		
@@ -83,4 +83,4 @@ $.screenOverlay = (function (options) {
 		}, 200);
 	}
 });
-}(AWESOME));
+}(AWESOME, document, window));

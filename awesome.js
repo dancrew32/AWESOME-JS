@@ -599,6 +599,7 @@ var AWESOME = (function (WIN, DOC) {
 							case 'password':
 								formChildren.push(currentNode);
 							break;
+							case 'radio':
 							case 'checkbox':
 								if (currentNode.checked) {
 									formChildren.push(currentNode);
@@ -620,7 +621,7 @@ var AWESOME = (function (WIN, DOC) {
 					returnObject[currentChild.name] = currentChild.value;
 				} else {
 					if (typeof returnObject[currentChild.name] === 'string') {
-						returnObject[currentChild.name] = [returnObject[currentChild.name], currentChild.value.toString()];					
+						returnObject[currentChild.name] = [returnObject[currentChild.name], currentChild.value.toString()];	
 					} else {
 						returnObject[currentChild.name].push(currentChild.value.toString());
 					}
@@ -813,21 +814,12 @@ var AWESOME = (function (WIN, DOC) {
 				case 'JSONP':
 					this.addScript(options.url, options.requestId || 'awesome-jsonp');
 				break;
-				case 'JSON':
-					get(options.url, options.data, 'json');
-				break;
-				case 'XML':
-					get(options.url, options.data, 'xml');
-				break;
-				case 'TEXT':
-					get(options.url, options.data, 'text');
-				break;
 				default:
 					get(options.url, options.data);
 			}
 			
 			//private
-			function open(method, url, type) {
+			function open(method, url) {
 				var req = getRequest();
 				if ($this.isNull(req)) {return;}
 				var d = new Date();
@@ -843,18 +835,15 @@ var AWESOME = (function (WIN, DOC) {
 				req.setRequestHeader("X-Request-Id", d.getTime());
 				
 				req.onreadystatechange = function(e) {
-					var data;
-					switch (type) {
-						case 'json':
-							data = $this.parse(req.responseText, 'json');
-						break;
-						case 'xml':
-							data = $this.parse(req.responseText, 'xml');
-						break;
-						case 'text':
-							data = req.responseText;
-						default:
-							data = req;
+					var data = req;
+					if (!$this.isNull(options.dataType)) {
+						switch (options.dataType) {
+							case 'text':
+								data = req.responseText;
+							break;
+							default:
+								data = $this.parse(req.responseText, options.dataType);
+						}
 					}
 
 					switch (req.readyState) {
@@ -884,9 +873,8 @@ var AWESOME = (function (WIN, DOC) {
 				return req;
 			}
 			
-			function get(url, data, type) {
-				type = type || null;
-				var req = open('GET', url + $this.formatParams(options.data), type);
+			function get(url, data) {
+				var req = open('GET', url + $this.formatParams(options.data));
 				req.send('');
 				return req;
 			}

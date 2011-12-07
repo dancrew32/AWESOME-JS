@@ -6,5 +6,20 @@
 <body>
 <script type="text/javascript" src="../awesome.js"></script>
 <script type="text/javascript" src="awesome.test.js"></script>
+<form id="test_form" action="faux" method="get" name="test_form">
+	<input type="text" name="a" value="test">
+	<select name="b">
+		<option value="1"></option>
+		<option value="2"></option>
+	</select>
+
+	<input type="radio" name="c" value="1"/>
+	<input type="radio" name="c" value="2"/>
+	<input type="radio" name="c" value="3" checked/>
+
+	<input type="checkbox" name="d" value="1" checked/>
+	<input type="checkbox" name="d" value="2"/>
+	<input type="checkbox" name="d" value="3" checked/>
+</form>
 </body>
 </html>

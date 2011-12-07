@@ -142,7 +142,8 @@
 
 		$.ajax({
 			url: 'test.json',
-			type: 'JSON',
+			type: 'get',
+			dataType: 'json',
 			complete: function(data) {
 				if (typeof data.glossary.title === 'string') {
 					pass('ajax');
@@ -152,7 +153,8 @@
 		});
 		$.ajax({
 			url: 'test.xml',
-			type: 'XML',
+			type: 'get',
+			dataType: 'xml',
 			complete: function(data) {
 				var output = $.getTag('to', data)[0];
 				if (typeof $.text(output) === 'string') {
@@ -160,6 +162,12 @@
 				}
 			}
 		});
+
+		var form = $.serialize($.getId('test_form'));
+		if (form.a === 'test' && form.d[0] === '1') {
+			pass('form serialize (to array)');
+		}
+		
 
 		function pass(method) {
 			info.innerHTML += method +' works.<br>';	
