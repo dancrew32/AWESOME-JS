@@ -20,7 +20,7 @@ var AWESOME = (function (WIN, DOC) {
 				} else if (DOC.readyState) {
 					if ((/loaded|complete/).test(DOC.readyState)) {
 						fireDOMReady();
-						// IE, courtesy of Diego Perini (http://javascript.nwbox.com/IEContentLoaded/)
+						// IE
 					} else if (!!DOCEL.doScroll) {
 						try {
 							ready || DOCEL.doScroll('left');
@@ -34,7 +34,7 @@ var AWESOME = (function (WIN, DOC) {
 			var fireDOMReady = function () {
 				if (!ready) {
 					ready = true;
-					// Call the onload function in given context or window object
+					// onload function in given context or window object
 					fn.call(ctx || WIN);
 					// Clean up after the DOM is ready
 					if (canAttach) 
@@ -139,7 +139,7 @@ var AWESOME = (function (WIN, DOC) {
 			return this.isNull(val) || this.isUndefined(val);	
 		},
 		hasClass: function (el, cls) {
-			var re = el.className.split(" ");
+			var re = el.className.split(' ');
 			if (!Array.indexOf) {
 				Array.prototype.indexOf = function(obj) {
 					for(var i = 0; i < this.length; i++) {
@@ -155,17 +155,17 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		addClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) 
-				el.className += ' ' + cls;
+				el.className += ' '+ cls;
 		},
 		removeClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) return;
 			var re = el.className.split(' ');
-			if (this.isUndefined(re)) { return;	}
+			if (this.isUndefined(re)) return;
 			re.splice(re.indexOf(cls), 1);
 			var i = re.length;
 			el.className = ''; // empty
 			while(i--) { // reload
-				el.className += re[i] + ' ';
+				el.className += re[i] +' ';
 			}
 		},
 		getId: function (id) {
@@ -538,7 +538,8 @@ var AWESOME = (function (WIN, DOC) {
 			interval = setInterval(function() {
 				var time = +new Date();
 				var pos = time > finish ? 1 : (time-start) / options.duration;
-				$this.style(el, options.property, interpolate(fromNum, toNum, options.easing(pos)) + toUnit);
+				var interpolation = interpolate(fromNum, toNum, options.easing(pos));
+				$this.style(el, options.property, interpolation + toUnit);
 				if (time > finish) {
 					clearInterval(interval);
 					options.callback();
@@ -589,7 +590,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			// build list of viable form elements
 			var rawChildrenLen = rawChildren.length;
-			for (var k=0; k < rawChildrenLen; ++k) {
+			for (var k = 0; k < rawChildrenLen; ++k) {
 				var currentNode = rawChildren[k];
 				switch(rawChildren[k].nodeName.toLowerCase()) {
 					case 'input':
@@ -632,12 +633,13 @@ var AWESOME = (function (WIN, DOC) {
 		formatParams: function (obj) {
 			if (this.isNull(obj)) {return '';}
 			var q = [];
+			var encode = encodeURIComponent;
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					q.push( encodeURIComponent(prop) + "=" + encodeURIComponent(obj[prop]) );
+					q.push( encode(prop) +'='+ encode(obj[prop]) );
 				}
 			}
-			return q.join("&");
+			return q.join('&');
 		},
 		setDefaults: function(defaults, options) {
 			if (!options) {
@@ -652,7 +654,7 @@ var AWESOME = (function (WIN, DOC) {
 			return options;
 		},
 		parse: function(str, type) {
-			if (str === "") return;
+			if (str === '') return;
 			type = type || 'json';	
 			var result;
 			switch (type.toLowerCase()) {
