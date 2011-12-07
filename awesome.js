@@ -410,7 +410,7 @@ var AWESOME = (function (WIN, DOC) {
 			this.createCookie(name, '', -1);
 		},
 		readCookie: function (c_name) {
-			if (DOC.cookie.length > 0) {
+			if (DOC.cookie.length) {
 				var c_start = DOC.cookie.indexOf(c_name + "=");
 				if (c_start !== -1) {
 					c_start = c_start + c_name.length + 1;
@@ -595,11 +595,7 @@ var AWESOME = (function (WIN, DOC) {
 					case 'input':
 						switch(currentNode.type) {
 							case 'text':
-								formChildren.push(currentNode);
-							break;
 							case 'hidden':
-								formChildren.push(currentNode);
-							break;
 							case 'password':
 								formChildren.push(currentNode);
 							break;
@@ -608,16 +604,9 @@ var AWESOME = (function (WIN, DOC) {
 									formChildren.push(currentNode);
 								}
 							break;
-							case 'radio':
-								if (currentNode.checked) {
-									formChildren.push(currentNode);
-								}
-							break;
 						}
 					break;
 					case 'select':
-						formChildren.push(currentNode);
-					break;
 					case 'textarea':
 						formChildren.push(currentNode);
 					break;
@@ -802,6 +791,7 @@ var AWESOME = (function (WIN, DOC) {
 			options = this.setDefaults({
 				url:          null,
 				data:         null, // key:val
+				dataType:     null,
 				type:         'post',
 				disguise:     false,
 				requestId:    null,
@@ -817,21 +807,29 @@ var AWESOME = (function (WIN, DOC) {
 
 			// init
 			switch (options.type.toUpperCase()) {
-				case 'GET':
-					get(options.url, options.data);
-				break;
 				case 'POST':
 					post(options.url, options.data);
 				break;
 				case 'JSONP':
 					this.addScript(options.url, options.requestId || 'awesome-jsonp');
 				break;
+				case 'JSON':
+					get(options.url, options.data, 'json');
+				break;
+				case 'XML':
+					get(options.url, options.data, 'xml');
+				break;
+				case 'TEXT':
+					get(options.url, options.data, 'text');
+				break;
+				default:
+					get(options.url, options.data);
 			}
 			
 			//private
-			function open(method, url) {
+			function open(method, url, type) {
 				var req = getRequest();
-				if (this.isNull(req)) {return;}
+				if ($this.isNull(req)) {return;}
 				var d = new Date();
 				
 				req.open(method, url, true);
@@ -845,6 +843,20 @@ var AWESOME = (function (WIN, DOC) {
 				req.setRequestHeader("X-Request-Id", d.getTime());
 				
 				req.onreadystatechange = function(e) {
+					var data;
+					switch (type) {
+						case 'json':
+							data = $this.parse(req.responseText, 'json');
+						break;
+						case 'xml':
+							data = $this.parse(req.responseText, 'xml');
+						break;
+						case 'text':
+							data = req.responseText;
+						default:
+							data = req;
+					}
+
 					switch (req.readyState) {
 						case 0:
 							options.beforeSend();
@@ -856,15 +868,15 @@ var AWESOME = (function (WIN, DOC) {
 							options.afterSend();
 						break;
 						case 3:
-							options.preComplete(req);
+							options.preComplete(data);
 						break;
 						case 4:
 							if (req.status >= 200 && req.status < 300) {
-								options.complete(req);	
+								options.complete(data);	
 							} else if (req.status === 0) { // file:/// ajax
-								options.complete(req);
+								options.complete(data);
 							} else {
-								options.failure(req);
+								options.failure(data);
 							}
 						break;
 					}
@@ -872,8 +884,9 @@ var AWESOME = (function (WIN, DOC) {
 				return req;
 			}
 			
-			function get(url, data) {
-				var req = open('GET', url + $this.formatParams(options.data));
+			function get(url, data, type) {
+				type = type || null;
+				var req = open('GET', url + $this.formatParams(options.data), type);
 				req.send('');
 				return req;
 			}
@@ -885,7 +898,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 
 			function getRequest() {
-				if (!this.isUndefined(XMLHttpRequest))
+				if (!$this.isUndefined(XMLHttpRequest))
 					return new XMLHttpRequest();
 				try {
 					return new ActiveXObject(MSxml +'.6.0');
