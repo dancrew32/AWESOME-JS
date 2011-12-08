@@ -346,16 +346,15 @@ var AWESOME = (function (WIN, DOC) {
 			return str.replace(/<.*?>/g,'');
 		},
 		text: function (obj, txt) {
-			if (!this.isUndefined(obj)) {
-				if (txt) {
-					if (!this.isUndefined(obj.innerText)) {
-						obj.innerText = txt;
-					}
-					obj.textContent = txt;
-				} else {
-					return obj.innerText || obj.textContent;
+			if (this.isUndefined(obj)) return;
+			if (txt) {
+				if (!this.isUndefined(obj.innerText)) {
+					obj.innerText = txt;
 				}
+				obj.textContent = txt;
+				return;
 			}
+			return obj.innerText || obj.textContent;
 		},
 		plural: function(count, singular, plural) {
 			return count === 1 ? singular : plural;	
