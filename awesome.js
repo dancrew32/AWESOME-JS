@@ -403,6 +403,9 @@ var AWESOME = (function (WIN, DOC) {
 		create: function (tag) {
 			return DOC.createElement(tag);
 		},
+		frag: function() {
+			return DOC.createDocumentFragment();	
+		},
 		// Cookies
 		createCookie: function (name, value, days, domain) {
 			var expires = '';
