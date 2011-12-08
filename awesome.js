@@ -190,13 +190,15 @@ var AWESOME = (function (WIN, DOC) {
 			return classElements;
 		},
 		toCamelCase: function (string) {
-			var oStringList = string.split('-');
-			if (oStringList.length === 1) return oStringList[0];
+			var strs = string.split('-');
+			if (strs.length === 1) return strs[0];
 
-			var ccstr = string.indexOf('-') === 0 ? oStringList[0].charAt(0).toUpperCase() + oStringList[0].substring(1) : oStringList[0];
+			var ccstr = string.indexOf('-') === 0 
+				? strs[0].charAt(0).toUpperCase() + strs[0].substring(1) 
+				: strs[0];
 
-			for (var i = 1, len = oStringList.length; i < len; ++i) {
-				var s = oStringList[i];
+			for (var i = 1, len = strs.length; i < len; ++i) {
+				var s = strs[i];
 				ccstr += s.charAt(0).toUpperCase() + s.substring(1);
 			}
 			return ccstr;
