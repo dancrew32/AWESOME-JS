@@ -328,7 +328,7 @@ var AWESOME = (function (WIN, DOC) {
 			var cache = {};
 			var strCache = template;
 			var matches = 0;
-			template.replace(/#{([^}]*)}/g, function(tmpl, val) {
+			template.replace(/#{([^}]*)}/g, function(tmpl, val) { // #{oKey}
 				cache[tmpl] = val;
 			});
 			for (var key in cache) {
