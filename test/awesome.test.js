@@ -173,6 +173,11 @@
 			pass('format params');	
 		}
 		
+		var template = "hey, #{name}. Your name is #{name} #{last}.";
+		var greeting = $.template(template, {name: 'dan', last: 'masq'});
+		if (greeting === 'hey, dan. Your name is dan masq.') {
+			pass('templating');	
+		}
 
 		function pass(method) {
 			info.innerHTML += method +' works.<br>';	

@@ -324,6 +324,18 @@ var AWESOME = (function (WIN, DOC) {
 				return result;
 			}
 		},
+		template: function(template, obj){
+			var cache = {};
+			var strCache = template;
+			var matches = 0;
+			template.replace(/#{([^}]*)}/g, function(tmpl, val) {
+				cache[tmpl] = val;
+			});
+			for (var key in cache) {
+				strCache = strCache.replace(new RegExp(key, 'g'), obj[cache[key]]);
+			}
+			return strCache;
+		},
 		encodeHTML: function (str) {
 			return str.replace(/&/g, '&amp;')
 				.replace(/</g, '&lt;')
