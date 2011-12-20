@@ -568,7 +568,7 @@ var AWESOME = (function (WIN, DOC) {
 		fadeOut: function(el, duration, callback) {
 			this.fade(el, duration, 0, callback);
 		},
-		fade: function(el, duraction, to, callback) {
+		fade: function(el, duration, to, callback) {
 			callback = callback || function() {};
 			this.animate(el, {
 				property: 'opacity',
