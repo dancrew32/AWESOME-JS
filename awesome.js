@@ -2,7 +2,30 @@
 var AWESOME = (function (WIN, DOC) {
 	var BODY = DOC.body;
 	var DOCEL = DOC.documentElement;
-	var canAttach = typeof BODY.addEventListener === undefined;
+	var CANATTACH = typeof BODY.addEventListener === 'function' 
+			&& typeof BODY.attachEvent === 'undefined';
+	var QUEUE = [];
+	var QUEUE_TIMER = null;
+	var RXP = {
+		ready: /loaded|complete/,
+		template: /#{([^}]*)}/g,
+		amp: /&/g,
+		lt: /</g,
+		gt: />/g,
+		quote: /"/g,
+		apos: /'/g
+	};
+
+	if (!Array.indexOf) {
+		Array.prototype.indexOf = function(obj) {
+			for(var i = 0; i < this.length; i++) {
+				if (this[i] === obj){
+					return i;
+				}
+			}
+			return -1;
+		};
+	}
 
 	return {
 		ready: function (fn, ctx) {
@@ -18,7 +41,7 @@ var AWESOME = (function (WIN, DOC) {
 					fireDOMReady();
 					// Safari & IE
 				} else if (DOC.readyState) {
-					if ((/loaded|complete/).test(DOC.readyState)) {
+					if ((RXP.ready).test(DOC.readyState)) {
 						fireDOMReady();
 						// IE
 					} else if (!!DOCEL.doScroll) {
@@ -37,7 +60,7 @@ var AWESOME = (function (WIN, DOC) {
 					// onload function in given context or window object
 					fn.call(ctx || WIN);
 					// Clean up after the DOM is ready
-					if (canAttach) 
+					if (CANATTACH) 
 						DOC.removeEventListener(contentLoaded, onStateChange, false);
 					DOC.onreadystatechange = null;
 					WIN.onload = null;
@@ -46,8 +69,7 @@ var AWESOME = (function (WIN, DOC) {
 				}
 			};
 			// Mozilla & Opera
-			if (canAttach) 
-				DOC.addEventListener(contentLoaded, onStateChange, false);
+			if (CANATTACH) DOC.addEventListener(contentLoaded, onStateChange, false);
 			// IE
 			DOC.onreadystatechange = onStateChange;
 			// Safari & IE
@@ -55,11 +77,13 @@ var AWESOME = (function (WIN, DOC) {
 			// Legacy
 			WIN.onload = onStateChange;
 		},
-		log: function (data) {
-			if (!this.isUndefined(console)) {
-				console.log(data);
-			}
+		log: function (data, type) {
+			if (typeof console === 'undefined') return;
+			type = type || 'log'
+			if (this.isUndefined(console)) return;
+			console[type](data);
 		},
+		noop: function() {},
 		cancelEvent: function (event) {
 			event = event || WIN.event;
 			if (event.preventDefault) {
@@ -69,65 +93,77 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		cancelPropagation: function (event) {
+			event = event || WIN.event;
 			if (event.stopPropagation) {
 				event.stopPropagation();
 			} else {
 				event.cancelBubble = true;
 			}
 		},
-		bind: function (obj, type, handler, delegate) {
-			if (this.isUndefined(obj) || this.isNull(obj)) {return;}
-			delegate = delegate || false;
-			if (this.isUndefined(obj.length)) {
-				obj = [obj];	
-			}
+		bind: function (obj, type, handler, capture) {
+			if (this.isNullOrUndefined(obj)) return;
+			capture = capture || false; // bubble
+			obj = this.toArray(obj);
 			var i = obj.length;
 			while (i--) {
-				if (canAttach) {
-					obj[i].addEventListener(type, handler, delegate); // false: bubble (^). true: capture (v).
-				} else if (obj.attachEvent) {
-					obj[i].attachEvent('on' + type, handler);
+				if (CANATTACH) {
+					obj[i].addEventListener(type, handler, capture);
+				} else if (obj[i].attachEvent) {
+					obj[i].attachEvent('on'+ type, handler);
 				} else {
-					obj[i]['on' + type] = handler;
+					obj[i]['on'+ type] = handler;
 				}
 			}
 		},
-		unbind: function (obj, type, handler, delegate) {
-			if (this.isUndefined(obj) || this.isNull(obj)) {return;}
-			delegate = delegate || false;
-			if (this.isUndefined(obj.length)) {
-				obj = [obj];	
-			}
+		unbind: function (obj, type, handler, capture) {
+			if (this.isNullOrUndefined(obj)) return;
+			capture = capture || false;
+			obj = this.toArray(obj);
 			var i = obj.length;
 			while (i--) {
-				if (canAttach) {
-					obj[i].removeEventListener(type, handler, delegate);
+				if (CANATTACH) {
+					obj[i].removeEventListener(type, handler, capture);
 				} else if (obj[i].detachEvent) {
-					obj[i].detachEvent('on' + type, handler);
+					obj[i].detachEvent('on'+ type, handler);
 				} else {
-					obj[i]['on' + type] = null;
+					obj[i]['on'+ type] = null;
 				}
 			}
 		},
-		fire: function(obj, ev, delegate, cancelable) {
+		fire: function(obj, ev, capture, cancelable) {
 			var evt;
 			if (DOC.createEventObject) { // ie
 				evt = DOC.createEventObject();
 				return obj.fireEvent('on'+ ev, evt);
 			}
-			delegate = delegate || false;
+			capture = capture || false;
 			cancelable = cancelable || true;
 			evt = DOC.createEvent('HTMLEvents');
-			evt.initEvent(ev, delegate, cancelable);
+			evt.initEvent(ev, capture, cancelable);
 			return !obj.dispatchEvent(evt);
 		},
-		hover: function (obj, over, out, delegate) {
+		hover: function (obj, over, out, capture) {
 			if (this.isUndefined(obj)) {return;}
 			var $this = this;
 			out = out || null;
-			$this.bind(obj, 'mouseover', over, delegate);
+			$this.bind(obj, 'mouseover', over, capture);
 			if (out) 
-				$this.bind(obj, 'mouseout', out, delegate);
+				$this.bind(obj, 'mouseout', out, capture);
+		},
+		toArray: function(obj) {
+			if (!this.isArray(obj)) {
+				obj = [obj];	
+			}
+			return obj;
+		},
+		isObject: function(val) {
+			return typeof val === 'object';	
+		},
+		isArray: function(val) {
+			return this.isObject(val) && !this.isUndefined(val.length);
+		},
+		isString: function() {
+			return typeof val === 'string';	
 		},
 		isUndefined: function(val) {
 			return typeof val === 'undefined';	
@@ -140,22 +176,11 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		hasClass: function (el, cls) {
 			var re = el.className.split(' ');
-			if (!Array.indexOf) {
-				Array.prototype.indexOf = function(obj) {
-					for(var i = 0; i < this.length; i++) {
-						if (this[i] === obj){
-							return i;
-						}
-					}
-					return -1;
-				};
-			}
 			if (this.isUndefined(re)) { return false; }
 			return -1 !== re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
-			if (!this.hasClass(el, cls)) 
-				el.className += ' '+ cls;
+			if (!this.hasClass(el, cls)) el.className += ' '+ cls;
 		},
 		removeClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) return;
@@ -164,7 +189,7 @@ var AWESOME = (function (WIN, DOC) {
 			re.splice(re.indexOf(cls), 1);
 			var i = re.length;
 			el.className = ''; // empty
-			while(i--) { // reload
+			while (i--) { // reload
 				el.className += re[i] +' ';
 			}
 		},
@@ -180,7 +205,7 @@ var AWESOME = (function (WIN, DOC) {
 			var classElements = [];
 			var els = this.getTag(tag, context);
 			var elsLen = els.length;
-			var pattern = new RegExp('(^|\\s)' + searchClass + '(\\s|$)');
+			var pattern = new RegExp('^|\\s' + searchClass + '\\s|$');
 			for (var i = 0, j = 0; i < elsLen; ++i) {
 				if (pattern.test(els[i].className)) {
 					classElements[j] = els[i];
@@ -188,6 +213,10 @@ var AWESOME = (function (WIN, DOC) {
 				}
 			}
 			return classElements;
+		},
+		is: function(el, type) {
+			if (this.isUndefined(type)) return el.nodeName;
+			return el.nodeName === type.toUpperCase();
 		},
 		toCamelCase: function (string) {
 			var strs = string.split('-');
@@ -328,7 +357,7 @@ var AWESOME = (function (WIN, DOC) {
 			var cache = {};
 			var strCache = template;
 			var matches = 0;
-			template.replace(/#{([^}]*)}/g, function(tmpl, val) { // #{oKey}
+			template.replace(RXP.template, function(tmpl, val) { // #{oKey}
 				cache[tmpl] = val;
 			});
 			for (var key in cache) {
@@ -336,11 +365,22 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			return strCache;
 		},
+		html: function(obj, str, coerce, coercePar) {
+			coerse = coerce || false;
+			if (coerce) {
+				var temp = obj.ownerDocument.createElement('DIV');
+				temp.innerHTML = '<'+ coercePar +'>'+ str +'</'+ coercePar +'>';
+				this.swap(temp.firstChild.firstChild, obj);
+			} else {
+				obj.innerHTML = str;	
+			}
+		},
 		encodeHTML: function (str) {
-			return str.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-				.replace(/"/g, '&quot;');
+			return str.replace(RXP.amp, '&amp;')
+				.replace(RXP.lt, '&lt;')
+				.replace(RXP.gt, '&gt;')
+				.replace(RXP.quote, '&quot;')
+				.replace(RXP.apos, '&apos;');
 		},
 		stripHTML: function (str) {
 			return str.replace(/<.*?>/g,'');
@@ -354,7 +394,7 @@ var AWESOME = (function (WIN, DOC) {
 				obj.textContent = txt;
 				return;
 			}
-			return obj.innerText || obj.textContent;
+			return obj.innerText || obj.textContent || obj.text;
 		},
 		plural: function(count, singular, plural) {
 			return count === 1 ? singular : plural;	
@@ -363,27 +403,29 @@ var AWESOME = (function (WIN, DOC) {
 			return str.replace(/^\s+|\s+$/g);
 		},
 		prepend: function (newNode, node) {
-			node.insertBefore(newNode, node.childNodes[0]);
+			node.insertBefore(this.toNode(newNode), node.childNodes[0]);
 		},
 		append: function (newNode, node) {
-			node.appendChild(newNode);
+			node.appendChild(this.toNode(newNode));
 		},
 		before: function (newNode, node) {
-			node.parentNode.insertBefore(newNode, node);
+			//if (node.parentNode === BODY) {
+				//this.prepend(this.toNode(newNode), BODY);
+				//return;
+			//}
+			node.parentNode.insertBefore(this.toNode(newNode), node);
 		},
 		after: function (newNode, node) {
-			node.parentNode.insertBefore(newNode, node.nextSibling);
+			node.parentNode.insertBefore(this.toNode(newNode), node.nextSibling);
 		},
 		swap: function (a, b) {
 			a.parentNode.replaceChild(b, a);
 		},
 		remove: function (ele, recursive) {
 			if (!ele) return false;
-			if (!('length' in ele)) {
-				ele = [ele];
-			}
-			var i = ele.length;
 			recursive = recursive || true;
+			ele = this.toArray(ele);
+			var i = ele.length;
 			while (i--) {
 				if (!this.isUndefined(ele[i].parentNode)) {
 					if (recursive) {
@@ -400,11 +442,33 @@ var AWESOME = (function (WIN, DOC) {
 			trash.appendChild(el);
 			trash.innerHTML = '';
 		},
-		create: function (tag) {
-			return DOC.createElement(tag);
+		toNode: function(text) {
+			if (!this.isString(text)) return text;
+			return this.create(text);
 		},
-		frag: function() {
-			return DOC.createDocumentFragment();	
+		create: function (tag) {
+			return DOC.createElement(tag.toUpperCase());
+		},
+		frag: function(str) {
+			var frag = DOC.createDocumentFragment();	
+			var temp = this.create('DIV');
+			temp.innerHTML = str;
+			while (temp.firstChild) {
+				frag.appendChild(temp.firstChild);	
+			}
+			return frag;
+		},
+		// Execution Queue
+		queue: function(fn, time) {
+			var timer = function(time) {
+				QUEUE_TIMER = setTimeout(function() {
+					fn();
+				}, time || 2);
+			};
+		},
+		clearQueue: function() {
+			clearTimeout(QUEUE_TIMER);
+			QUEUE = [];	
 		},
 		// Cookies
 		createCookie: function (name, value, days, domain) {
@@ -530,7 +594,7 @@ var AWESOME = (function (WIN, DOC) {
 				easing: function(pos) {
 					return (-Math.cos(pos * Math.PI) / 2) + 0.5; 
 				},
-				callback: function() {}
+				callback: $this.noop
 			}, options);
 
 			var fromNum = parseFloat(options.from);
@@ -569,7 +633,7 @@ var AWESOME = (function (WIN, DOC) {
 			this.fade(el, duration, 0, callback);
 		},
 		fade: function(el, duration, to, callback) {
-			callback = callback || function() {};
+			callback = callback || this.noop;
 			this.animate(el, {
 				property: 'opacity',
 				to: to,
@@ -677,11 +741,13 @@ var AWESOME = (function (WIN, DOC) {
 				case 'xml':
 					if (WIN.DOMParser) {
 						var parser = new DOMParser();
-						result = parser.parseFromString(str, 'text/xml');
+						return parser.parseFromString(str, 'text/xml');
 					} else { // ie
 						var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
 						xmlDoc.async = 'false';
-						result = xmlDoc.loadXML(str); }
+						xmlDoc.loadXML(str);
+						return xmlDoc;
+					}
 				break;
 				case 'json':
 					if (JSON.parse) {
@@ -807,6 +873,7 @@ var AWESOME = (function (WIN, DOC) {
 			return true;
 		},
 		ajax: function(options) {
+			var $this = this;
 			options = this.setDefaults({
 				url:          null,
 				data:         null, // key:val
@@ -814,111 +881,105 @@ var AWESOME = (function (WIN, DOC) {
 				type:         'post',
 				disguise:     false,
 				requestId:    null,
-				beforeSend:   function() {},
-				sendPrepared: function() {},
-				afterSend:    function() {},
-				preComplete:  function() {},
-				complete:     function() {},
-				failure:      function() {}
+				beforeSend:   $this.noop,
+				sendPrepared: $this.noop,
+				afterSend:    $this.noop,
+				complete:     $this.noop,
+				failure:      $this.noop
 			}, options);
-			var $this = this;
 			var MSxml = 'Msxml2.XMLHTTP';
 
 			// init
 			switch (options.type.toUpperCase()) {
 				case 'POST':
-					post(options.url, options.data);
+					this.postRequest(options);
 				break;
 				case 'JSONP':
 					this.addScript(options.url, options.requestId || 'awesome-jsonp');
 				break;
 				default:
-					get(options.url, options.data);
+					this.getRequest(options);
 			}
+		},
+		openRequest: function(options, method) {
+			var req = this.getHttpRequest();
+			if (this.isNull(req)) return;
+			var $this = this;
+			var d = new Date();
+			var aborted = 'abort';
 			
-			//private
-			function open(method, url) {
-				var req = getRequest();
-				if ($this.isNull(req)) {return;}
-				var d = new Date();
-				
-				req.open(method, url, true);
-				
-				if (method === 'POST') {
-					req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				}
-				if (!options.disguise) {
-					req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-				}
-				req.setRequestHeader("X-Request-Id", d.getTime());
-				
-				req.onreadystatechange = function(e) {
-					var data = req;
-					if (!$this.isNull(options.dataType)) {
-						switch (options.dataType) {
-							case 'text':
-								data = req.responseText;
-							break;
-							default:
+			req.open(method, options.url, true);
+			
+			if (method === 'POST') {
+				req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			}
+			if (!options.disguise) {
+				req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			}
+			req.setRequestHeader('X-Request-Id', d.getTime());
+			
+			req.onreadystatechange = function(e) {
+				var data = '';
+
+				switch (req.readyState) {
+					case 0:
+						options.beforeSend();
+					break;
+					case 1:
+						options.sendPrepared();
+					break;
+					case 2:
+						options.afterSend();
+					break;
+					case 4:
+
+						if (!$this.isNull(options.dataType)) {
+							try {
 								data = $this.parse(req.responseText, options.dataType);
+							} catch (erD) { data = aborted; }
+						} else {
+							try {
+								data = req.responseText;
+							} catch (erT) { data = aborted; }
 						}
-					}
 
-					switch (req.readyState) {
-						case 0:
-							options.beforeSend();
-						break;
-						case 1:
-							options.sendPrepared();
-						break;
-						case 2:
-							options.afterSend();
-						break;
-						case 3:
-							options.preComplete(data);
-						break;
-						case 4:
-							if (req.status >= 200 && req.status < 300) {
-								options.complete(data);	
-							} else if (req.status === 0) { // file:/// ajax
-								options.complete(data);
-							} else {
-								options.failure(data);
-							}
-						break;
-					}
-				};
-				return req;
-			}
-			
-			function get(url, data) {
-				var req = open('GET', url + $this.formatParams(options.data));
-				req.send('');
-				return req;
-			}
-			
-			function post(url, data) {
-				var req = open('POST', url);
-				req.send($this.formatParams(options.data));
-				return req;
-			}
-
-			function getRequest() {
-				if (!$this.isUndefined(XMLHttpRequest))
-					return new XMLHttpRequest();
-				try {
-					return new ActiveXObject(MSxml +'.6.0');
-				} catch(e1) {}
-				try {
-					return new ActiveXObject(MSxml +'.3.0');
-				} catch(e2) {}
-				try {
-					return new ActiveXObject(MSxml);
-				} catch(e3) {}
-				try {
-					return new ActiveXObject('Microsoft.XMLHTTP');
-				} catch(e4) {}
-			}
+						if (data !== aborted && req.status >= 200 && req.status < 300) {
+							options.complete(data);	
+						} else if (data !== aborted && req.status === 0) { // file:/// ajax
+							options.complete(data);
+						} else {
+							options.failure(data);
+						}
+					break;
+				}
+			};
+			return req;
+		},
+		postRequest: function(options) {
+			var req = this.openRequest(options, 'POST');
+			req.send(this.formatParams(options.data));
+			return req;
+		},
+		getRequest: function(options) {
+			var req = this.openRequest(options, 'GET');
+			req.send('');
+			return req;
+		},
+		getHttpRequest: function() {
+			if (typeof XMLHttpRequest !== 'undefined')
+				return new XMLHttpRequest();
+			try {
+				return new ActiveXObject(MSxml +'.6.0');
+			} catch(e1) {}
+			try {
+				return new ActiveXObject(MSxml +'.3.0');
+			} catch(e2) {}
+			try {
+				return new ActiveXObject(MSxml);
+			} catch(e3) {}
+			try {
+				return new ActiveXObject('Microsoft.XMLHTTP');
+			} catch(e4) {}
 		}
 	};
 }(window, document));

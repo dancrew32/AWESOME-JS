@@ -1,23 +1,35 @@
 (function($) {
+	$.log('ready', 'time');
 	unitTest = {
 		pass : true,
 		flag : []
 	};
 	$.ready(function() {
+		$.log('ready', 'timeEnd');
+		$.log('a', 'time');
 		var info = $.create('DIV');
-		$.attr(info, 'id', 'info');
+		info.id = 'info';
+		$.attr(info, 'rel', 'yee');
 		$.append(info, document.body);
+		var pass = function(method, test) {
+			test = $.isUndefined(test) ? true : test;
+			if (test) {
+				info.innerHTML += method +' works.<BR>';	
+			} else {
+				info.innerHTML += '<b>'+ method +' FAILED</b>.<BR>';	
+			}
+		};
 		pass('ready');
 		pass('create');
-		pass('attr');
+		pass('attr', $.attr($.getId('info'), 'rel') === 'yee');
 		$.log('Safe Log Works.');
 		pass('log');
 		var a = $.create('DIV');
 		var b = $.create('DIV');
 		var c = $.create('DIV');
-		$.attr(a, 'id', 'a');
-		$.attr(b, 'id', 'b');
-		$.attr(c, 'id', 'c');
+		a.id = 'a';
+		b.id = 'b';
+		c.id = 'c';
 		$.before(a, info);
 		pass('before');
 		$.prepend(b, info);
@@ -30,7 +42,7 @@
 			prop : false,
 			pass : false	
 		};
-		var bindMethod = function() {
+		function bindMethod() {
 			bindTest.pass = true;
 		};
 		$.bind(a, 'click', bindMethod);
@@ -43,14 +55,12 @@
 
 			$.unbind(a, 'click', bindMethod);
 			$.fire(a, 'click');
-			if (bindTest.pass === false) {
-				pass('unbind');
-			}
+			pass('unbind', (bindTest.pass === false));
 		}
 		var linkTest = $.create('A');
 		linkTest.id = 'link';
 		linkTest.href = 'http://www.google.com';
-		$.append(linkTest, $.getId('c'));
+		$.append(linkTest, $.getId('b'));
 		var propCanceled = true;
 		var propCanceled = true;
 		var linkPropCancelTest = function(e) {
@@ -74,16 +84,19 @@
 			}
 		}, 500);
 		
-
 		if (typeof $.getId('a') === 'object') {
 			pass('getId');		
 		}
 		if (typeof $.getTag('div')[0] === 'object') {
 			pass('getTag');		
 		}
-		$.attr($.getId('a'), 'class', 'test');
+		$.addClass($.getId('a'), 'test');
 		if (typeof $.getClass('test', document.body, 'DIV')[0] === 'object') {
 			pass('getClass');		
+		}
+
+		if ($.hasClass($.getId('a'), 'fuuuuu')) {
+			pass('hasClass', false);
 		}
 
 		if ($.hasClass($.getId('a'), 'test')) {
@@ -103,7 +116,10 @@
 			pass('remove');
 		}
 
-		var text = info.innerHTML.split('<br>');
+		var text = info.innerHTML.split('<BR>');
+		if (text.length === 1) {
+			text = info.innerHTML.split('<br>');	
+		}
 		text.pop(); // clear end empty node
 		info.innerHTML = '';
 		var arr = $.sort({
@@ -111,7 +127,7 @@
 		});
 		var arrLen = arr.length;
 		while (arrLen--) {
-			info.innerHTML += arr[arrLen] +'<br>';
+			info.innerHTML += arr[arrLen] +'<BR>';
 		}
 
 		$.style(info, 'display', 'block');
@@ -129,7 +145,7 @@
 
 		var htmlStr = '<div>"hi there\'</div>';
 		htmlStr = $.encodeHTML(htmlStr);
-		if (htmlStr === "&lt;div&gt;&quot;hi there'&lt;/div&gt;") {
+		if (htmlStr === "&lt;div&gt;&quot;hi there&apos;&lt;/div&gt;") {
 			pass('encodeHTML');
 		}
 
@@ -145,7 +161,7 @@
 			type: 'get',
 			dataType: 'json',
 			complete: function(data) {
-				if (typeof data.glossary.title === 'string') {
+				if (data.glossary.title === 'example glossary') {
 					pass('ajax');
 					pass('parse(json)');
 				}
@@ -179,9 +195,30 @@
 			pass('templating');	
 		}
 
-		function pass(method) {
-			info.innerHTML += method +' works.<br>';	
+		var IS_TEST = [$.create('P'), $.create('optgroup'), $.create('div'),  $.create('link')];
+		var IS_TEST_LEN = IS_TEST.length;
+		while (IS_TEST_LEN--) {
+			if ($.is(IS_TEST[IS_TEST_LEN], 'p')) {
+				pass('is');
+			}
 		}
+
+		var inarraytest = ['1', 2, '34', 'dan'];
+		if ($.inArray(2, inarraytest) && $.inArray('34', inarraytest)) {
+			pass('inArray');
+		}
+
+
+		var passcount = info.innerHTML.split('<BR>');
+		if (passcount.length === 1) {
+			passcount = info.innerHTML.split('<br>');	
+		}
+
+
+		var finalResults = $.create('b')
+		finalResults.innerHTML = passcount.length +' passed.<br>';
+		$.prepend(finalResults, info);
+		$.log('a', 'timeEnd');
 	});
 
 }(AWESOME));
