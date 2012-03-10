@@ -696,6 +696,14 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			return frag;
 		},
+		canvas: function(el) {
+			if (!el.getContext) {
+				this.addClass('no-canvas');	
+				return false;
+			} else {
+				return el.getContext('2d');
+			}
+		},
 		// TODO: Execution Queue
 		// Cookies
 		createCookie: function (name, value, days, domain) {
@@ -744,7 +752,7 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		getRandom: function(min, max) {
 			var m = Math;
-			if (min) {
+			if (!isUndefined(min)) {
 				return m.floor(m.random() * (max - min + 1)) + min;
 			} else {
 				return m.round(m.random()); // 1 or 0
