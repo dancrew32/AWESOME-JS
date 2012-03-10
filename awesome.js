@@ -496,6 +496,9 @@ var AWESOME = (function (WIN, DOC) {
 				}
 			}
 		},
+		hide: function(el) {
+				
+		},
 		getPosition: function(obj) {
 			if (!obj) return;
 			var curLeft = 0;
@@ -853,7 +856,7 @@ var AWESOME = (function (WIN, DOC) {
 		fadeOut: function(el, duration, callback) {
 			this.fade(el, duration, 0, callback);
 		},
-		fade: function(el, duration, to, callback) {
+		fade: function(el, duration, to, callback, from) {
 			callback = callback || noop;
 			this.animate(el, {
 				property: 'opacity',
@@ -903,7 +906,7 @@ var AWESOME = (function (WIN, DOC) {
 							break;
 							case 'radio':
 							case 'checkbox':
-								if (currentNode.checked) {
+								if (currentNode.checked === 'checked') {
 									formChildren.push(currentNode);
 								}
 							break;
@@ -980,6 +983,16 @@ var AWESOME = (function (WIN, DOC) {
 				default:
 					getRequest(options);
 			}
+		},
+		spinner: function(el, speed, slides) {
+			slides = slides || ['&oplus;', '&otimes;'];
+			var i = slides.length;
+			var cur = 0;
+
+			return setInterval(function() {
+				cur = cur + 1 === i ? 0 : cur + 1;
+				el.innerHTML = slides[cur];
+			}, speed || 100);
 		}
 	};
 }(window, document));

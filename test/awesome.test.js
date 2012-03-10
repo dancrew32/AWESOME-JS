@@ -219,6 +219,16 @@
 		finalResults.innerHTML = passcount.length +' passed.<br>';
 		$.prepend(finalResults, info);
 		$.log('a', 'timeEnd');
+
+		var spinner = $.create('div');
+		$.append(spinner, document.body);
+		var timer = $.spinner(spinner, 65);
+		setTimeout(function() {
+			$.fadeOut(spinner, 500, function() {
+				clearInterval(timer);
+				$.remove(spinner);
+			});
+		}, 10000);
 	});
 
 }(AWESOME));
