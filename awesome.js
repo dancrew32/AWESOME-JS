@@ -5,6 +5,7 @@ var AWESOME = (function (WIN, DOC) {
 	var BODY = DOC.body;
 	var DOCEL = DOC.documentElement;
 	var CANATTACH = isFunction(BODY.addEventListener) && isUndefined(BODY.attachEvent);
+	var CANCANVAS = null;
 	var RXP = {
 		ready: /loaded|complete/,
 		template: /#{([^}]*)}/g,
@@ -29,6 +30,7 @@ var AWESOME = (function (WIN, DOC) {
 		};
 	}
 
+	function noop() {}
 	// isTest's
 	function isObject(val) {
 		return typeof val === 'object';	
@@ -51,6 +53,225 @@ var AWESOME = (function (WIN, DOC) {
 	function isNullOrUndefined(val) {
 		return isNull(val) || isUndefined(val);	
 	}
+
+	// ajax
+	function openRequest(options, method) {
+		var req = getHttpRequest();
+		if (isNull(req)) return;
+		var d = new Date();
+		var aborted = 'abort';
+		
+		req.open(method, options.url, true);
+		
+		if (method === 'POST') {
+			req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		}
+		if (!options.disguise) {
+			req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		}
+		req.setRequestHeader('X-Request-Id', d.getTime());
+		
+		req.onreadystatechange = function(e) {
+			var data = '';
+
+			switch (req.readyState) {
+				case 0:
+					options.beforeSend();
+				break;
+				case 1:
+					options.sendPrepared();
+				break;
+				case 2:
+					options.afterSend();
+				break;
+				case 4:
+
+					if (!isNull(options.dataType)) {
+						try {
+							data = parse(req.responseText, options.dataType);
+						} catch (erD) { data = aborted; }
+					} else {
+						try {
+							data = req.responseText;
+						} catch (erT) { data = aborted; }
+					}
+
+					if (data !== aborted && req.status >= 200 && req.status < 300) {
+						options.complete(data);	
+					} else if (data !== aborted && req.status === 0) { // file:/// ajax
+						options.complete(data);
+					} else {
+						options.failure(data);
+					}
+				break;
+			}
+		};
+		return req;
+	}
+	function getRequest(options) {
+		var req = openRequest(options, 'GET');
+		req.send('');
+		return req;
+	}
+	function postRequest(options) {
+		var req = openRequest(options, 'POST');
+		req.send(formatParams(options.data));
+		return req;
+	}
+	function getHttpRequest() {
+		if (typeof XMLHttpRequest !== 'undefined')
+			return new XMLHttpRequest();
+		try {
+			return new ActiveXObject(MSxml +'.6.0');
+		} catch(e1) {}
+		try {
+			return new ActiveXObject(MSxml +'.3.0');
+		} catch(e2) {}
+		try {
+			return new ActiveXObject(MSxml);
+		} catch(e3) {}
+		try {
+			return new ActiveXObject('Microsoft.XMLHTTP');
+		} catch(e4) {}
+	}
+
+	function formatParams(obj) {
+		if (isNull(obj)) {return '';}
+		var q = [];
+		var encode = encodeURIComponent;
+		for (var prop in obj) {
+			if (obj.hasOwnProperty(prop)) {
+				q.push( encode(prop) +'='+ encode(obj[prop]) );
+			}
+		}
+		return q.join('&');
+	}
+
+	
+	// parse
+	function parse(str, type) {
+		if (str === '') return;
+		type = type || 'json';	
+		var result;
+		switch (type.toLowerCase()) {
+			case 'xml':
+				if (WIN.DOMParser) {
+					var parser = new DOMParser();
+					return parser.parseFromString(str, 'text/xml');
+				} else { // ie
+					var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
+					xmlDoc.async = 'false';
+					xmlDoc.loadXML(str);
+					return xmlDoc;
+				}
+			break;
+			case 'json':
+				if (JSON.parse) {
+					return JSON.parse(str);
+				}
+				var string = '(?:\"' + RXP.oneChar + '*\")';
+				var jsonToken = new RegExp(
+						'(?:false|true|null|[\\{\\}\\[\\]]'
+							+ '|' + RXP.number
+							+ '|' + string
+							+ ')', 'g');
+				var escapes = {
+					'"': '"',
+					'/': '/',
+					'\\': '\\',
+					'b': '\b',
+					'f': '\f',
+					'n': '\n',
+					'r': '\r',
+					't': '\t'
+				};
+				function unescapeOne(_, ch, hex) {
+					return ch ? escapes[ch] : String.fromCharCode(parseInt(hex, 16));
+				}
+
+				var toks = str.match(jsonToken);
+				var tok = toks[0];
+				var topLevelPrimitive = false;
+				if ('{' === tok) {
+					result = {};
+				} else if ('[' === tok) {
+					result = [];
+				} else {
+					result = [];
+					topLevelPrimitive = true;
+				}
+				var key;
+				var stack = [result];
+				for (var i = 1 - topLevelPrimitive, n = toks.length; i < n; ++i) {
+					tok = toks[i];
+					var cont;
+					switch (tok.charCodeAt(0)) {
+						case 0x22:  // '"'
+							tok = tok.substring(1, tok.length - 1);
+							if (tok.indexOf('\\') !== -1) {
+								tok = tok.replace(RXP.jsonEscapeSeq, unescapeOne);
+							}
+							cont = stack[0];
+							if (!key) {
+								if (cont instanceof Array) {
+									key = cont.length;
+								} else {
+									key = tok || '';  // Use as key for next value seen.
+									break;
+								}
+							}
+							cont[key] = tok;
+							key = void 0;
+							break;
+						case 0x5b:  // '['
+							cont = stack[0];
+							stack.unshift(cont[key || cont.length] = []);
+							key = void 0;
+							break;
+						case 0x5d:  // ']'
+							stack.shift();
+							break;
+						case 0x66:  // 'f'
+							cont = stack[0];
+							cont[key || cont.length] = false;
+							key = void 0;
+							break;
+						case 0x6e:  // 'n'
+							cont = stack[0];
+							cont[key || cont.length] = null;
+							key = void 0;
+							break;
+						case 0x74:  // 't'
+							cont = stack[0];
+							cont[key || cont.length] = true;
+							key = void 0;
+							break;
+						case 0x7b:  // '{'
+							cont = stack[0];
+							stack.unshift(cont[key || cont.length] = {});
+							key = void 0;
+							break;
+						case 0x7d:  // '}'
+							stack.shift();
+							break;
+						default:  // sign or digit
+							cont = stack[0];
+							cont[key || cont.length] = +(tok);
+							key = void 0;
+							break;
+					}
+				}
+				if (topLevelPrimitive) {
+					if (stack.length !== 1) { throw new Error(); }
+					result = result[0];
+				} else {
+					if (stack.length) { throw new Error(); }
+				}
+			break;
+		}
+		return result;
+	}
+
 
 	// PUBLIC
 	return {
@@ -109,7 +330,7 @@ var AWESOME = (function (WIN, DOC) {
 			if (isUndefined(console)) return;
 			console[type](data);
 		},
-		noop: function() {},
+		noop: noop,
 		cancelEvent: function (event) {
 			event = event || WIN.event;
 			if (event.preventDefault) {
@@ -594,7 +815,7 @@ var AWESOME = (function (WIN, DOC) {
 				easing: function(pos) {
 					return (-Math.cos(pos * Math.PI) / 2) + 0.5; 
 				},
-				callback: $this.noop
+				callback: noop
 			}, options);
 
 			var fromNum = parseFloat(options.from);
@@ -633,7 +854,7 @@ var AWESOME = (function (WIN, DOC) {
 			this.fade(el, duration, 0, callback);
 		},
 		fade: function(el, duration, to, callback) {
-			callback = callback || this.noop;
+			callback = callback || noop;
 			this.animate(el, {
 				property: 'opacity',
 				to: to,
@@ -710,17 +931,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			return returnObject;
 		},
-		formatParams: function (obj) {
-			if (isNull(obj)) {return '';}
-			var q = [];
-			var encode = encodeURIComponent;
-			for (var prop in obj) {
-				if (obj.hasOwnProperty(prop)) {
-					q.push( encode(prop) +'='+ encode(obj[prop]) );
-				}
-			}
-			return q.join('&');
-		},
+		formatParams: formatParams,
 		setDefaults: function(defaults, options) {
 			if (!options) {
 				options = defaults;
@@ -733,139 +944,16 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			return options;
 		},
-		parse: function(str, type) {
-			if (str === '') return;
-			type = type || 'json';	
-			var result;
-			switch (type.toLowerCase()) {
-				case 'xml':
-					if (WIN.DOMParser) {
-						var parser = new DOMParser();
-						return parser.parseFromString(str, 'text/xml');
-					} else { // ie
-						var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
-						xmlDoc.async = 'false';
-						xmlDoc.loadXML(str);
-						return xmlDoc;
-					}
-				break;
-				case 'json':
-					if (JSON.parse) {
-						return JSON.parse(str);
-					}
-					var string = '(?:\"' + RXP.oneChar + '*\")';
-					var jsonToken = new RegExp(
-							'(?:false|true|null|[\\{\\}\\[\\]]'
-								+ '|' + RXP.number
-								+ '|' + string
-								+ ')', 'g');
-					var escapes = {
-						'"': '"',
-						'/': '/',
-						'\\': '\\',
-						'b': '\b',
-						'f': '\f',
-						'n': '\n',
-						'r': '\r',
-						't': '\t'
-					};
-					function unescapeOne(_, ch, hex) {
-						return ch ? escapes[ch] : String.fromCharCode(parseInt(hex, 16));
-					}
-
-					var toks = str.match(jsonToken);
-					var tok = toks[0];
-					var topLevelPrimitive = false;
-					if ('{' === tok) {
-						result = {};
-					} else if ('[' === tok) {
-						result = [];
-					} else {
-						result = [];
-						topLevelPrimitive = true;
-					}
-					var key;
-					var stack = [result];
-					for (var i = 1 - topLevelPrimitive, n = toks.length; i < n; ++i) {
-						tok = toks[i];
-						var cont;
-						switch (tok.charCodeAt(0)) {
-							case 0x22:  // '"'
-								tok = tok.substring(1, tok.length - 1);
-								if (tok.indexOf('\\') !== -1) {
-									tok = tok.replace(RXP.jsonEscapeSeq, unescapeOne);
-								}
-								cont = stack[0];
-								if (!key) {
-									if (cont instanceof Array) {
-										key = cont.length;
-									} else {
-										key = tok || '';  // Use as key for next value seen.
-										break;
-									}
-								}
-								cont[key] = tok;
-								key = void 0;
-								break;
-							case 0x5b:  // '['
-								cont = stack[0];
-								stack.unshift(cont[key || cont.length] = []);
-								key = void 0;
-								break;
-							case 0x5d:  // ']'
-								stack.shift();
-								break;
-							case 0x66:  // 'f'
-								cont = stack[0];
-								cont[key || cont.length] = false;
-								key = void 0;
-								break;
-							case 0x6e:  // 'n'
-								cont = stack[0];
-								cont[key || cont.length] = null;
-								key = void 0;
-								break;
-							case 0x74:  // 't'
-								cont = stack[0];
-								cont[key || cont.length] = true;
-								key = void 0;
-								break;
-							case 0x7b:  // '{'
-								cont = stack[0];
-								stack.unshift(cont[key || cont.length] = {});
-								key = void 0;
-								break;
-							case 0x7d:  // '}'
-								stack.shift();
-								break;
-							default:  // sign or digit
-								cont = stack[0];
-								cont[key || cont.length] = +(tok);
-								key = void 0;
-								break;
-						}
-					}
-					if (topLevelPrimitive) {
-						if (stack.length !== 1) { throw new Error(); }
-						result = result[0];
-					} else {
-						if (stack.length) { throw new Error(); }
-					}
-				break;
-			}
-			return result;
-		},
+		parse: parse,
 		addScript: function(url, id) {
-			var $this = this;
 			var script = this.create('script');	
 			script.type = 'text/javascript';
 			script.src = url || '#';
 			script.id = id || 'awesome-script'; // id to remove 
-			this.append(script, $this.getTag('head')[0]);
+			this.append(script, this.getTag('head')[0]);
 			return true;
 		},
 		ajax: function(options) {
-			var $this = this;
 			options = this.setDefaults({
 				url:          null,
 				data:         null, // key:val
@@ -873,105 +961,25 @@ var AWESOME = (function (WIN, DOC) {
 				type:         'post',
 				disguise:     false,
 				requestId:    null,
-				beforeSend:   $this.noop,
-				sendPrepared: $this.noop,
-				afterSend:    $this.noop,
-				complete:     $this.noop,
-				failure:      $this.noop
+				beforeSend:   noop,
+				sendPrepared: noop,
+				afterSend:    noop,
+				complete:     noop,
+				failure:      noop
 			}, options);
 			var MSxml = 'Msxml2.XMLHTTP';
 
 			// init
 			switch (options.type.toUpperCase()) {
 				case 'POST':
-					this.postRequest(options);
+					postRequest(options);
 				break;
 				case 'JSONP':
 					this.addScript(options.url, options.requestId || 'awesome-jsonp');
 				break;
 				default:
-					this.getRequest(options);
+					getRequest(options);
 			}
-		},
-		openRequest: function(options, method) {
-			var req = this.getHttpRequest();
-			if (isNull(req)) return;
-			var $this = this;
-			var d = new Date();
-			var aborted = 'abort';
-			
-			req.open(method, options.url, true);
-			
-			if (method === 'POST') {
-				req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-			}
-			if (!options.disguise) {
-				req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-			}
-			req.setRequestHeader('X-Request-Id', d.getTime());
-			
-			req.onreadystatechange = function(e) {
-				var data = '';
-
-				switch (req.readyState) {
-					case 0:
-						options.beforeSend();
-					break;
-					case 1:
-						options.sendPrepared();
-					break;
-					case 2:
-						options.afterSend();
-					break;
-					case 4:
-
-						if (!isNull(options.dataType)) {
-							try {
-								data = $this.parse(req.responseText, options.dataType);
-							} catch (erD) { data = aborted; }
-						} else {
-							try {
-								data = req.responseText;
-							} catch (erT) { data = aborted; }
-						}
-
-						if (data !== aborted && req.status >= 200 && req.status < 300) {
-							options.complete(data);	
-						} else if (data !== aborted && req.status === 0) { // file:/// ajax
-							options.complete(data);
-						} else {
-							options.failure(data);
-						}
-					break;
-				}
-			};
-			return req;
-		},
-		postRequest: function(options) {
-			var req = this.openRequest(options, 'POST');
-			req.send(this.formatParams(options.data));
-			return req;
-		},
-		getRequest: function(options) {
-			var req = this.openRequest(options, 'GET');
-			req.send('');
-			return req;
-		},
-		getHttpRequest: function() {
-			if (typeof XMLHttpRequest !== 'undefined')
-				return new XMLHttpRequest();
-			try {
-				return new ActiveXObject(MSxml +'.6.0');
-			} catch(e1) {}
-			try {
-				return new ActiveXObject(MSxml +'.3.0');
-			} catch(e2) {}
-			try {
-				return new ActiveXObject(MSxml);
-			} catch(e3) {}
-			try {
-				return new ActiveXObject('Microsoft.XMLHTTP');
-			} catch(e4) {}
 		}
 	};
 }(window, document));
