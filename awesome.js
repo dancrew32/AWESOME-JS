@@ -13,10 +13,7 @@ var AWESOME = (function (WIN, DOC) {
 		lt: /</g,
 		gt: />/g,
 		quote: /"/g,
-		apos: /'/g,
-		number: '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)',
-		oneChar: '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))',
-		jsonEscapeSeq: /\\\\(?:([^u])|u(.{4}))/g
+		apos: /'/g
 	};
 
 	if (!Array.indexOf) {
@@ -85,7 +82,6 @@ var AWESOME = (function (WIN, DOC) {
 					options.afterSend();
 				break;
 				case 4:
-
 					if (!isNull(options.dataType)) {
 						try {
 							data = parse(req.responseText, options.dataType);
@@ -119,6 +115,7 @@ var AWESOME = (function (WIN, DOC) {
 		return req;
 	}
 	function getHttpRequest() {
+		var MSxml = 'Msxml2.XMLHTTP';
 		if (typeof XMLHttpRequest !== 'undefined')
 			return new XMLHttpRequest();
 		try {
@@ -166,15 +163,20 @@ var AWESOME = (function (WIN, DOC) {
 				}
 			break;
 			case 'json':
-				if (JSON.parse) {
+				if (typeof JSON !== 'undefined') {
 					return JSON.parse(str);
 				}
-				var string = '(?:\"' + RXP.oneChar + '*\")';
+				var number = '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)';
+				var oneChar = '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]'
+							+ '|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))';
+				var string = '(?:\"' + oneChar + '*\")';
+
 				var jsonToken = new RegExp(
 						'(?:false|true|null|[\\{\\}\\[\\]]'
-							+ '|' + RXP.number
+							+ '|' + number
 							+ '|' + string
 							+ ')', 'g');
+				var escapeSequence = new RegExp('\\\\(?:([^u])|u(.{4}))', 'g');
 				var escapes = {
 					'"': '"',
 					'/': '/',
@@ -188,6 +190,10 @@ var AWESOME = (function (WIN, DOC) {
 				function unescapeOne(_, ch, hex) {
 					return ch ? escapes[ch] : String.fromCharCode(parseInt(hex, 16));
 				}
+				var EMPTY_STRING = '';
+				var SLASH = '\\';
+				var firstTokenCtors = { '{': Object, '[': Array };
+				var hop = Object.hasOwnProperty;
 
 				var toks = str.match(jsonToken);
 				var tok = toks[0];
@@ -208,15 +214,15 @@ var AWESOME = (function (WIN, DOC) {
 					switch (tok.charCodeAt(0)) {
 						case 0x22:  // '"'
 							tok = tok.substring(1, tok.length - 1);
-							if (tok.indexOf('\\') !== -1) {
-								tok = tok.replace(RXP.jsonEscapeSeq, unescapeOne);
+							if (tok.indexOf(SLASH) !== -1) {
+								tok = tok.replace(escapeSequence, unescapeOne);
 							}
 							cont = stack[0];
 							if (!key) {
 								if (cont instanceof Array) {
 									key = cont.length;
 								} else {
-									key = tok || '';  // Use as key for next value seen.
+									key = tok || EMPTY_STRING  // Use as key for next value seen.
 									break;
 								}
 							}
@@ -327,7 +333,7 @@ var AWESOME = (function (WIN, DOC) {
 		log: function (data, type) {
 			if (typeof console === 'undefined') return;
 			type = type || 'log'
-			if (isUndefined(console)) return;
+			if (isUndefined(console[type])) return;
 			console[type](data);
 		},
 		noop: noop,
@@ -426,7 +432,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		getId: function (id) {
-			return DOC.getElementById(id);
+			return DOC.getElementById(id) || false;
 		},
 		getTag: function (tag, context) {
 			context = context || DOC;
@@ -644,10 +650,6 @@ var AWESOME = (function (WIN, DOC) {
 			node.appendChild(this.toNode(newNode));
 		},
 		before: function (newNode, node) {
-			//if (node.parentNode === BODY) {
-				//this.prepend(this.toNode(newNode), BODY);
-				//return;
-			//}
 			node.parentNode.insertBefore(this.toNode(newNode), node);
 		},
 		after: function (newNode, node) {
@@ -679,9 +681,10 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		toNode: function(text) {
 			if (!isString(text)) return text;
-			return this.create(text);
+			return this.frag(text);
 		},
 		create: function (tag) {
+			if (tag.charAt(0) === '<') return this.frag(tag);
 			return DOC.createElement(tag.toUpperCase());
 		},
 		frag: function(str) {
@@ -970,7 +973,6 @@ var AWESOME = (function (WIN, DOC) {
 				complete:     noop,
 				failure:      noop
 			}, options);
-			var MSxml = 'Msxml2.XMLHTTP';
 
 			// init
 			switch (options.type.toUpperCase()) {

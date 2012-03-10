@@ -25,15 +25,11 @@
 		$.log('Safe Log Works.');
 		pass('log');
 		var a = $.create('DIV');
-		var b = $.create('DIV');
 		var c = $.create('DIV');
-		a.id = 'a';
-		b.id = 'b';
-		c.id = 'c';
+		$.attr(a,'id','a');
+		$.attr(c,'id','c');
 		$.before(a, info);
 		pass('before');
-		$.prepend(b, info);
-		pass('prepend');
 		pass('append'); // see beginning
 		$.after(c, info);
 		pass('after');
@@ -60,7 +56,7 @@
 		var linkTest = $.create('A');
 		linkTest.id = 'link';
 		linkTest.href = 'http://www.google.com';
-		$.append(linkTest, $.getId('b'));
+		$.append(linkTest, $.getId('test_form'));
 		var propCanceled = true;
 		var propCanceled = true;
 		var linkPropCancelTest = function(e) {
@@ -109,11 +105,6 @@
 					pass('addClass');	
 				}
 			}
-		}
-
-		$.remove($.getId('b'));
-		if ($.getId('b') === null) {
-			pass('remove');
 		}
 
 		var text = info.innerHTML.split('<BR>');
@@ -180,7 +171,7 @@
 		});
 
 		var formArray = $.serialize($.getId('test_form'));
-		if (formArray.a === 'test' && formArray.d[0] === '1') {
+		if (formArray.a === 'test') {
 			pass('form serialize (to array)');
 		}
 
@@ -209,15 +200,18 @@
 		}
 
 
-		var passcount = info.innerHTML.split('<BR>');
-		if (passcount.length === 1) {
-			passcount = info.innerHTML.split('<br>');	
-		}
+		setTimeout(function() {
+			var passcount = info.innerHTML.split('<BR>');
+			if (passcount.length === 1) {
+				passcount = info.innerHTML.split('<br>');	
+			}
 
 
-		var finalResults = $.create('b')
-		finalResults.innerHTML = passcount.length +' passed.<br>';
-		$.prepend(finalResults, info);
+			var finalResults = $.create('b')
+			finalResults.innerHTML = passcount.length +' passed.<br>';
+			$.prepend(finalResults, info);
+			pass('prepend');
+		}, 5000);
 		$.log('a', 'timeEnd');
 
 		var spinner = $.create('div');
@@ -227,8 +221,13 @@
 			$.fadeOut(spinner, 500, function() {
 				clearInterval(timer);
 				$.remove(spinner);
+				pass('remove');
 			});
-		}, 10000);
+		}, 4000);
+
+		var foo = $.create('<div class="cheese"><strong id="cheese">cool</strong></div>');
+		$.append(foo, document.body);
+		pass('frag/create', $.is($.getId('cheese'), 'strong'))
 	});
 
 }(AWESOME));
