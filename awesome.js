@@ -13,7 +13,10 @@ var AWESOME = (function (WIN, DOC) {
 		lt: /</g,
 		gt: />/g,
 		quote: /"/g,
-		apos: /'/g
+		apos: /'/g,
+		number: '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)',
+		oneChar: '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))',
+		jsonEscapeSeq: /\\\\(?:([^u])|u(.{4}))/g,
 	};
 
 	if (!Array.indexOf) {
@@ -753,16 +756,12 @@ var AWESOME = (function (WIN, DOC) {
 					if (JSON.parse) {
 						return JSON.parse(str);
 					}
-					var number = '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)';
-					var oneChar = '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]'
-							+ '|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))';
-					var string = '(?:\"' + oneChar + '*\")';
+					var string = '(?:\"' + RXP.oneChar + '*\")';
 					var jsonToken = new RegExp(
 							'(?:false|true|null|[\\{\\}\\[\\]]'
-								+ '|' + number
+								+ '|' + RXP.number
 								+ '|' + string
 								+ ')', 'g');
-					var escapeSequence = new RegExp('\\\\(?:([^u])|u(.{4}))', 'g');
 					var escapes = {
 						'"': '"',
 						'/': '/',
@@ -776,10 +775,6 @@ var AWESOME = (function (WIN, DOC) {
 					function unescapeOne(_, ch, hex) {
 						return ch ? escapes[ch] : String.fromCharCode(parseInt(hex, 16));
 					}
-					var EMPTY_STRING = '';
-					var SLASH = '\\';
-					var firstTokenCtors = { '{': Object, '[': Array };
-					var hop = Object.hasOwnProperty;
 
 					var toks = str.match(jsonToken);
 					var tok = toks[0];
@@ -800,15 +795,15 @@ var AWESOME = (function (WIN, DOC) {
 						switch (tok.charCodeAt(0)) {
 							case 0x22:  // '"'
 								tok = tok.substring(1, tok.length - 1);
-								if (tok.indexOf(SLASH) !== -1) {
-									tok = tok.replace(escapeSequence, unescapeOne);
+								if (tok.indexOf('\\') !== -1) {
+									tok = tok.replace(RXP.jsonEscapeSeq, unescapeOne);
 								}
 								cont = stack[0];
 								if (!key) {
 									if (cont instanceof Array) {
 										key = cont.length;
 									} else {
-										key = tok || EMPTY_STRING;  // Use as key for next value seen.
+										key = tok || '';  // Use as key for next value seen.
 										break;
 									}
 								}
