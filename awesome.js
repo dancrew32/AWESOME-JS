@@ -1,11 +1,10 @@
 // Awesome ensues 
 var AWESOME = (function (WIN, DOC) {
+
+	// PRIVATE
 	var BODY = DOC.body;
 	var DOCEL = DOC.documentElement;
-	var CANATTACH = typeof BODY.addEventListener === 'function' 
-			&& typeof BODY.attachEvent === 'undefined';
-	var QUEUE = [];
-	var QUEUE_TIMER = null;
+	var CANATTACH = isFunction(BODY.addEventListener) && isUndefined(BODY.attachEvent);
 	var RXP = {
 		ready: /loaded|complete/,
 		template: /#{([^}]*)}/g,
@@ -16,7 +15,7 @@ var AWESOME = (function (WIN, DOC) {
 		apos: /'/g,
 		number: '(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)',
 		oneChar: '(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))',
-		jsonEscapeSeq: /\\\\(?:([^u])|u(.{4}))/g,
+		jsonEscapeSeq: /\\\\(?:([^u])|u(.{4}))/g
 	};
 
 	if (!Array.indexOf) {
@@ -30,6 +29,30 @@ var AWESOME = (function (WIN, DOC) {
 		};
 	}
 
+	// isTest's
+	function isObject(val) {
+		return typeof val === 'object';	
+	}
+	function isArray(val) {
+		return isObject(val) && !isUndefined(val.length);
+	}
+	function isString(val) {
+		return typeof val === 'string';	
+	}
+	function isFunction(val) {
+		return typeof val === 'function';	
+	}
+	function isUndefined(val) {
+		return typeof val === 'undefined';	
+	}
+	function isNull(val) {
+		return typeof val === 'null';	
+	}
+	function isNullOrUndefined(val) {
+		return isNull(val) || isUndefined(val);	
+	}
+
+	// PUBLIC
 	return {
 		ready: function (fn, ctx) {
 			var contentLoaded = 'DOMContentLoaded';
@@ -83,7 +106,7 @@ var AWESOME = (function (WIN, DOC) {
 		log: function (data, type) {
 			if (typeof console === 'undefined') return;
 			type = type || 'log'
-			if (this.isUndefined(console)) return;
+			if (isUndefined(console)) return;
 			console[type](data);
 		},
 		noop: function() {},
@@ -104,7 +127,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		bind: function (obj, type, handler, capture) {
-			if (this.isNullOrUndefined(obj)) return;
+			if (isNullOrUndefined(obj)) return;
 			capture = capture || false; // bubble
 			obj = this.toArray(obj);
 			var i = obj.length;
@@ -119,7 +142,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		unbind: function (obj, type, handler, capture) {
-			if (this.isNullOrUndefined(obj)) return;
+			if (isNullOrUndefined(obj)) return;
 			capture = capture || false;
 			obj = this.toArray(obj);
 			var i = obj.length;
@@ -146,40 +169,25 @@ var AWESOME = (function (WIN, DOC) {
 			return !obj.dispatchEvent(evt);
 		},
 		hover: function (obj, over, out, capture) {
-			if (this.isUndefined(obj)) {return;}
+			if (isUndefined(obj)) {return;}
 			var $this = this;
 			out = out || null;
 			$this.bind(obj, 'mouseover', over, capture);
-			if (out) 
-				$this.bind(obj, 'mouseout', out, capture);
+			if (out) $this.bind(obj, 'mouseout', out, capture);
 		},
 		toArray: function(obj) {
-			if (!this.isArray(obj)) {
-				obj = [obj];	
-			}
+			if (!isArray(obj)) obj = [obj];	
 			return obj;
 		},
-		isObject: function(val) {
-			return typeof val === 'object';	
-		},
-		isArray: function(val) {
-			return this.isObject(val) && !this.isUndefined(val.length);
-		},
-		isString: function() {
-			return typeof val === 'string';	
-		},
-		isUndefined: function(val) {
-			return typeof val === 'undefined';	
-		},
-		isNull: function(val) {
-			return typeof val === 'null';	
-		},
-		isNullOrUndefined: function(val) {
-			return this.isNull(val) || this.isUndefined(val);	
-		},
+		isObject: isObject,
+		isArray: isArray,
+		isString: isString,
+		isUndefined: isUndefined,
+		isNull: isNull,
+		isNullOrUndefined: isNullOrUndefined,
 		hasClass: function (el, cls) {
 			var re = el.className.split(' ');
-			if (this.isUndefined(re)) { return false; }
+			if (isUndefined(re)) { return false; }
 			return -1 !== re.indexOf(cls);
 		},
 		addClass: function (el, cls) {
@@ -188,7 +196,7 @@ var AWESOME = (function (WIN, DOC) {
 		removeClass: function (el, cls) {
 			if (!this.hasClass(el, cls)) return;
 			var re = el.className.split(' ');
-			if (this.isUndefined(re)) return;
+			if (isUndefined(re)) return;
 			re.splice(re.indexOf(cls), 1);
 			var i = re.length;
 			el.className = ''; // empty
@@ -218,7 +226,7 @@ var AWESOME = (function (WIN, DOC) {
 			return classElements;
 		},
 		is: function(el, type) {
-			if (this.isUndefined(type)) return el.nodeName;
+			if (isUndefined(type)) return el.nodeName;
 			return el.nodeName === type.toUpperCase();
 		},
 		toCamelCase: function (string) {
@@ -236,8 +244,8 @@ var AWESOME = (function (WIN, DOC) {
 			return ccstr;
 		},
 		style: function (el, prop, newVal) {
-			if (!this.isUndefined(el))
-			if (this.isUndefined(prop)) {
+			if (!isUndefined(el))
+			if (isUndefined(prop)) {
 				return el.currentStyle || getComputedStyle(el, null);	
 			} else {
 				prop = this.toCamelCase(prop);
@@ -283,7 +291,7 @@ var AWESOME = (function (WIN, DOC) {
 		getMousePosition: function(event, relativeTo) {
 			var x = event.pageX;
 			var y = event.pageY;
-			if (this.isNull(x) && !this.isNull(event.clientX)) {
+			if (isNull(x) && !isNull(event.clientX)) {
 				var xScroll = (DOCEL && DOCEL.scrollLeft || BODY && BODY.scrollLeft || 0);
 				var xClient = (DOCEL && DOCEL.clientLeft || BODY && BODY.clientLeft || 0);
 				var yScroll = (DOCEL && DOCEL.scrollTop || BODY && BODY.scrollTop || 0);
@@ -291,7 +299,7 @@ var AWESOME = (function (WIN, DOC) {
 				x = event.clientX + xScroll - xClient;
 				y = event.clientY + yScroll - yClient;
 			}
-			if (!this.isNullOrUndefined(relativeTo)) {
+			if (!isNullOrUndefined(relativeTo)) {
 				var tar = (typeof relativeTo === 'object') ? relativeTo : event.target;
 				var tarPos = this.getPosition(tar);
 				x = x - tarPos.left;
@@ -303,7 +311,7 @@ var AWESOME = (function (WIN, DOC) {
 			};
 		},
 		getScrollPosition: function() {
-			if (!this.isUndefined(WIN.pageYOffset)) {
+			if (!isUndefined(WIN.pageYOffset)) {
 				return WIN.pageYOffset;
 			}
 			return DOCEL.scrollTop;
@@ -319,20 +327,20 @@ var AWESOME = (function (WIN, DOC) {
 			return Math.max(BODY.clientWidth, DOCEL.clientWidth);
 		},
 		viewportHeight: function () {
-			if (!this.isUndefined(WIN.innerHeight)) {
+			if (!isUndefined(WIN.innerHeight)) {
 				return WIN.innerHeight;
-			} else if (!this.isUndefined(DOCEL)
-						&& !this.isUndefined(DOCEL.clientHeight)
+			} else if (!isUndefined(DOCEL)
+						&& !isUndefined(DOCEL.clientHeight)
 						&& DOCEL.clientHeight) { //ie6
 				return DOCEL.clientHeight;	
 			}
 			return BODY.clientHeight;
 		},
 		viewportWidth: function () {
-			if (!this.isUndefined(WIN.innerWidth)) {
+			if (!isUndefined(WIN.innerWidth)) {
 				return WIN.innerWidth;
-			} else if (!this.isUndefined(DOCEL)
-						&& !this.isUndefined(DOCEL.clientWidth)
+			} else if (!isUndefined(DOCEL)
+						&& !isUndefined(DOCEL.clientWidth)
 						&& DOCEL.clientWidth) { //ie6
 				return DOCEL.clientWidth;	
 			}
@@ -389,9 +397,9 @@ var AWESOME = (function (WIN, DOC) {
 			return str.replace(/<.*?>/g,'');
 		},
 		text: function (obj, txt) {
-			if (this.isUndefined(obj)) return;
+			if (isUndefined(obj)) return;
 			if (txt) {
-				if (!this.isUndefined(obj.innerText)) {
+				if (!isUndefined(obj.innerText)) {
 					obj.innerText = txt;
 				}
 				obj.textContent = txt;
@@ -430,7 +438,7 @@ var AWESOME = (function (WIN, DOC) {
 			ele = this.toArray(ele);
 			var i = ele.length;
 			while (i--) {
-				if (!this.isUndefined(ele[i].parentNode)) {
+				if (!isUndefined(ele[i].parentNode)) {
 					if (recursive) {
 						this.destroy(ele[i]);
 						continue;
@@ -440,13 +448,13 @@ var AWESOME = (function (WIN, DOC) {
 			}
 		},
 		destroy: function(el) {
-			if (this.isUndefined(el)) return;
+			if (isUndefined(el)) return;
 			var trash = this.create('DIV');
 			trash.appendChild(el);
 			trash.innerHTML = '';
 		},
 		toNode: function(text) {
-			if (!this.isString(text)) return text;
+			if (!isString(text)) return text;
 			return this.create(text);
 		},
 		create: function (tag) {
@@ -461,18 +469,7 @@ var AWESOME = (function (WIN, DOC) {
 			}
 			return frag;
 		},
-		// Execution Queue
-		queue: function(fn, time) {
-			var timer = function(time) {
-				QUEUE_TIMER = setTimeout(function() {
-					fn();
-				}, time || 2);
-			};
-		},
-		clearQueue: function() {
-			clearTimeout(QUEUE_TIMER);
-			QUEUE = [];	
-		},
+		// TODO: Execution Queue
 		// Cookies
 		createCookie: function (name, value, days, domain) {
 			var expires = '';
@@ -537,7 +534,7 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		isDescendant: function(p, c) {
 			var node = c.parentNode;
-			while (!this.isNull(node)) {
+			while (!isNull(node)) {
 				if (node === p) {
 					return true;
 				}
@@ -714,7 +711,7 @@ var AWESOME = (function (WIN, DOC) {
 			return returnObject;
 		},
 		formatParams: function (obj) {
-			if (this.isNull(obj)) {return '';}
+			if (isNull(obj)) {return '';}
 			var q = [];
 			var encode = encodeURIComponent;
 			for (var prop in obj) {
@@ -729,7 +726,7 @@ var AWESOME = (function (WIN, DOC) {
 				options = defaults;
 			} else {
 				for (var index in defaults) {
-					if (this.isUndefined(options[index])) {
+					if (isUndefined(options[index])) {
 						options[index] = defaults[index];
 					}
 				}
@@ -898,7 +895,7 @@ var AWESOME = (function (WIN, DOC) {
 		},
 		openRequest: function(options, method) {
 			var req = this.getHttpRequest();
-			if (this.isNull(req)) return;
+			if (isNull(req)) return;
 			var $this = this;
 			var d = new Date();
 			var aborted = 'abort';
@@ -928,7 +925,7 @@ var AWESOME = (function (WIN, DOC) {
 					break;
 					case 4:
 
-						if (!$this.isNull(options.dataType)) {
+						if (!isNull(options.dataType)) {
 							try {
 								data = $this.parse(req.responseText, options.dataType);
 							} catch (erD) { data = aborted; }
